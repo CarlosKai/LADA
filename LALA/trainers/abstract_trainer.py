@@ -15,7 +15,6 @@ from torchmetrics import Accuracy, AUROC, F1Score
 from dataloader.dataloader import data_generator, few_shot_data_generator
 from configs.data_model_configs import get_dataset_class
 from configs.hparams import get_hparams_class
-from configs.sweep_params import sweep_alg_hparams
 from utils import fix_randomness, starting_logs, DictAsObject,AverageMeter
 from algorithms.algorithms import get_algorithm_class
 from models.models import get_backbone_class
@@ -47,7 +46,6 @@ class AbstractTrainer(object):
         os.makedirs(self.exp_log_dir, exist_ok=True)
 
 
-
         # Specify runs
         self.num_runs = args.num_runs
 
@@ -68,9 +66,6 @@ class AbstractTrainer(object):
         self.AUROC = AUROC(task="multiclass", num_classes=self.num_classes)        
 
 
-    def sweep(self):
-        # sweep configurations
-        pass
     
     def initialize_algorithm(self):
         # get algorithm class
@@ -152,29 +147,6 @@ class AbstractTrainer(object):
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
 
-    def calculate_metrics_risks(self):
-        # calculation based source test data
-        self.evaluate(self.src_test_dl)
-        src_risk = self.loss.item()
-        # calculation based few_shot test data
-        self.evaluate(self.few_shot_dl_5)
-        fst_risk = self.loss.item()
-        # calculation based target test data
-        self.evaluate(self.trg_test_dl)
-        trg_risk = self.loss.item()
-
-        # calculate metrics
-        acc = self.ACC(self.full_preds.argmax(dim=1).cpu(), self.full_labels.cpu()).item()
-        # f1_torch
-        f1 = self.F1(self.full_preds.argmax(dim=1).cpu(), self.full_labels.cpu()).item()
-        auroc = self.AUROC(self.full_preds.cpu(), self.full_labels.cpu()).item()
-        # f1_sk learn
-        # f1 = f1_score(self.full_preds.argmax(dim=1).cpu().numpy(), self.full_labels.cpu().numpy(), average='macro')
-
-        risks = src_risk, fst_risk, trg_risk
-        metrics = acc, f1, auroc
-
-        return risks, metrics
 
     def save_tables_to_file(self,table_results, name):
         # save to file if needed
@@ -189,46 +161,6 @@ class AbstractTrainer(object):
         save_path = os.path.join(home_path, log_dir, f"checkpoint.pt")
         torch.save(save_dict, save_path)
 
-    def calculate_avg_std_wandb_table(self, results):
-
-        avg_metrics = [np.mean(results.get_column(metric)) for metric in results.columns[2:]]
-        std_metrics = [np.std(results.get_column(metric)) for metric in results.columns[2:]]
-        summary_metrics = {metric: np.mean(results.get_column(metric)) for metric in results.columns[2:]}
-
-        results.add_data('mean', '-', *avg_metrics)
-        results.add_data('std', '-', *std_metrics)
-
-        return results, summary_metrics
-
-    def log_summary_metrics_wandb(self, results, risks):
-       
-        # Calculate average and standard deviation for metrics
-        avg_metrics = [np.mean(results.get_column(metric)) for metric in results.columns[2:]]
-        std_metrics = [np.std(results.get_column(metric)) for metric in results.columns[2:]]
-
-        avg_risks = [np.mean(risks.get_column(risk)) for risk in risks.columns[2:]]
-        std_risks = [np.std(risks.get_column(risk)) for risk in risks.columns[2:]]
-
-        # Estimate summary metrics
-        summary_metrics = {metric: np.mean(results.get_column(metric)) for metric in results.columns[2:]}
-        summary_risks = {risk: np.mean(risks.get_column(risk)) for risk in risks.columns[2:]}
-
-
-        # append avg and std values to metrics
-        results.add_data('mean', '-', *avg_metrics)
-        results.add_data('std', '-', *std_metrics)
-
-        # append avg and std values to risks 
-        results.add_data('mean', '-', *avg_risks)
-        risks.add_data('std', '-', *std_risks)
-
-    def wandb_logging(self, total_results, total_risks, summary_metrics, summary_risks):
-        # log wandb
-        wandb.log({'results': total_results})
-        wandb.log({'risks': total_risks})
-        wandb.log({'hparams': wandb.Table(dataframe=pd.DataFrame(dict(self.hparams).items(), columns=['parameter', 'value']), allow_mixed_types=True)})
-        wandb.log(summary_metrics)
-        wandb.log(summary_risks)
 
     def calculate_metrics(self):
        
@@ -241,19 +173,6 @@ class AbstractTrainer(object):
         auroc = self.AUROC(self.full_preds.cpu(), self.full_labels.cpu()).item()
 
         return acc, f1, auroc
-
-    def calculate_risks(self):
-         # calculation based source test data
-        self.evaluate(self.src_test_dl)
-        src_risk = self.loss.item()
-        # calculation based few_shot test data
-        self.evaluate(self.few_shot_dl_5)
-        fst_risk = self.loss.item()
-        # calculation based target test data
-        self.evaluate(self.trg_test_dl)
-        trg_risk = self.loss.item()
-
-        return src_risk, fst_risk, trg_risk
 
     def append_results_to_tables(self, table, scenario, run_id, metrics):
 
