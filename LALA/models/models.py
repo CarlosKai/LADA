@@ -162,7 +162,7 @@ class TCN(nn.Module):
         out_1 = self.relu(x1 + res1)
 
         out = out_1[:, :, -1]
-        return out
+        return out, out_1
 
 
 ######## RESNET ##############################################
@@ -233,7 +233,8 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.layer = nn.Sequential(
-            nn.Linear(configs.features_len * configs.final_out_channels, configs.disc_hid_dim),
+            # nn.Linear(configs.features_len * configs.final_out_channels, configs.disc_hid_dim),
+            nn.Linear(configs.tcn_final_out_channles, configs.disc_hid_dim),
             nn.ReLU(),
             nn.Linear(configs.disc_hid_dim, configs.disc_hid_dim),
             nn.ReLU(),

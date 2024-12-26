@@ -16,7 +16,7 @@ import sklearn.exceptions
 
 from configs.sweep_params import sweep_alg_hparams
 from utils import fix_randomness, starting_logs, DictAsObject
-from algorithms.algorithms import get_algorithm_class
+from algorithms.TLA import get_algorithm_class
 from models.models import get_backbone_class
 from utils import AverageMeter
 

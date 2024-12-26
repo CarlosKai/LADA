@@ -17,7 +17,7 @@ from configs.data_model_configs import get_dataset_class
 from configs.hparams import get_hparams_class
 from configs.sweep_params import sweep_alg_hparams
 from utils import fix_randomness, starting_logs, DictAsObject,AverageMeter
-from algorithms.TLA import get_algorithm_class
+from algorithms.algorithms import get_algorithm_class
 from models.models import get_backbone_class
 
 
@@ -48,7 +48,6 @@ class AbstractTrainer(object):
 
 
 
-
         # Specify runs
         self.num_runs = args.num_runs
 
@@ -68,7 +67,6 @@ class AbstractTrainer(object):
         self.F1 = F1Score(task="multiclass", num_classes=self.num_classes, average="macro")
         self.AUROC = AUROC(task="multiclass", num_classes=self.num_classes)        
 
-        # metrics
 
     def sweep(self):
         # sweep configurations
@@ -103,8 +101,8 @@ class AbstractTrainer(object):
         return self.last_model, self.best_model
     
     def evaluate(self, test_loader):
-        feature_extractor = self.algorithm.feature_extractor.to(self.device)
-        classifier = self.algorithm.classifier.to(self.device)
+        feature_extractor = self.algorithm.la_tcn.to(self.device)
+        classifier = self.algorithm.la_classifier.to(self.device)
 
         feature_extractor.eval()
         classifier.eval()
@@ -117,12 +115,10 @@ class AbstractTrainer(object):
                 labels = labels.view((-1)).long().to(self.device)
 
                 # forward pass
-                features = feature_extractor(data)
+                features, _ = feature_extractor(data)
 
-                if self.da_method!='TLA':
-                    predictions = classifier(features)
-                else:
-                    predictions = features
+                predictions = classifier(features)
+
 
                 # compute loss
                 loss = F.cross_entropy(predictions, labels)

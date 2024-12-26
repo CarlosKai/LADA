@@ -18,12 +18,15 @@ class HAR():
         self.d_ff = 256 # 前馈网络中的隐藏层的大小，也就是第一个全连接层的输出维度
         self.factor = 5
         self.activation = "relu"
-        self.enc_in = 9
+        self.enc_in = 150
         self.num_class = 6
         self.patch_len = 8
         self.stride = 4
 
-        self.scenarios = [("2", "11"), ("6", "23")]
+        # domain_discriminator
+        # self.domain_discriminator_input = 128
+
+        self.scenarios = [("1", "2")]
         # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"),
         # ("18", "27"), ("20", "5"), ("24", "8"), ("28", "27"), ("30", "20")]
         self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']

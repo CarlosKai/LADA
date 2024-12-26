@@ -1,8 +1,8 @@
 import torch
 from torch import nn
-from .Transformer_EncDec import Encoder, EncoderLayer
-from .SelfAttention_Family import FullAttention, AttentionLayer
-from .Embed import PatchEmbedding
+from layer.Transformer_EncDec import Encoder, EncoderLayer
+from layer.SelfAttention_Family import FullAttention, AttentionLayer
+from layer.Embed import PatchEmbedding
 
 class Transpose(nn.Module):
     def __init__(self, *dims, contiguous=False): 
@@ -66,7 +66,7 @@ class PatchTST(nn.Module):
         x_enc = x_enc - means
         stdev = torch.sqrt(
             torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
-        x_enc /= stdev
+        x_enc = x_enc /stdev
 
         # do patching and embedding
         x_enc = x_enc.permute(0, 2, 1)
@@ -86,8 +86,9 @@ class PatchTST(nn.Module):
         output = self.flatten(enc_out)
         output = self.dropout(output)
         output = output.reshape(output.shape[0], -1)
+        out_feat = output
         output = self.projection(output)  # (batch_size, num_classes)
-        return output
+        return output, out_feat
 
     def forward(self, x_enc):
         x_enc = x_enc.permute(0, 2, 1)

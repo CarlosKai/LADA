@@ -14,7 +14,7 @@ import warnings
 import sklearn.exceptions
 
 from utils import fix_randomness, starting_logs, AverageMeter
-from algorithms.TLA import get_algorithm_class
+from algorithms.algorithms import get_algorithm_class
 from models.models import get_backbone_class
 from trainers.abstract_trainer import AbstractTrainer
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
@@ -26,22 +26,15 @@ class Trainer(AbstractTrainer):
     """
    This class contain the main training functions for our AdAtime
     """
-
     def __init__(self, args):
         super().__init__(args)
-
         self.results_columns = ["scenario", "run", "acc", "f1_score", "auroc"]
-        self.risks_columns = ["scenario", "run", "src_risk", "few_shot_risk", "trg_risk"]
 
 
     def fit(self):
 
         # table with metrics
         table_results = pd.DataFrame(columns=self.results_columns)
-
-        # table with risks
-        table_risks = pd.DataFrame(columns=self.risks_columns)
-
 
         # Trainer
         for src_id, trg_id in self.dataset_configs.scenarios:
@@ -62,28 +55,25 @@ class Trainer(AbstractTrainer):
                 self.initialize_algorithm()
 
                 # Train the domain adaptation algorithm
-                self.last_model, self.best_model = self.algorithm.update(self.src_train_dl, self.trg_train_dl, self.loss_avg_meters, self.logger)
+                self.last_model, self.best_model = self.algorithm.update(self.src_train_dl, self.src_test_dl, self.trg_train_dl, self.trg_test_dl,
+                                                                         self.loss_avg_meters, self.logger)
 
                 # Save checkpoint
                 self.save_checkpoint(self.home_path, self.scenario_log_dir, self.last_model, self.best_model)
 
                 # Calculate risks and metrics
                 metrics = self.calculate_metrics()
-                risks = self.calculate_risks()
+                # risks = self.calculate_risks()
 
                 # Append results to tables
                 scenario = f"{src_id}_to_{trg_id}"
                 table_results = self.append_results_to_tables(table_results, scenario, run_id, metrics)
-                table_risks = self.append_results_to_tables(table_risks, scenario, run_id, risks)
 
         # Calculate and append mean and std to tables
         table_results = self.add_mean_std_table(table_results, self.results_columns)
-        table_risks = self.add_mean_std_table(table_risks, self.risks_columns)
-
 
         # Save tables to file if needed
         self.save_tables_to_file(table_results, 'results')
-        self.save_tables_to_file(table_risks, 'risks')
 
     def test(self):
         # Results dataframes
