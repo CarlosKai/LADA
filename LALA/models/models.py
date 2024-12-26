@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import math
 from torch.autograd import Function
-from torch.nn.utils import weight_norm
+from torch.nn.utils.parametrizations import weight_norm
 import torch.nn.functional as F
 from .resnet18 import resnet18
 
@@ -234,7 +234,7 @@ class Discriminator(nn.Module):
 
         self.layer = nn.Sequential(
             # nn.Linear(configs.features_len * configs.final_out_channels, configs.disc_hid_dim),
-            nn.Linear(configs.tcn_final_out_channles, configs.disc_hid_dim),
+            nn.Linear(configs.tcn_final_out_channles * configs.features_len, configs.disc_hid_dim),
             nn.ReLU(),
             nn.Linear(configs.disc_hid_dim, configs.disc_hid_dim),
             nn.ReLU(),

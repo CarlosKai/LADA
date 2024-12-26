@@ -9,19 +9,18 @@ class HAR():
         super(HAR, self)
 
         # model transformer
-        self.d_model = 128
-        self.n_heads = 6
-        self.num_layers = 4
+        self.d_model = 128  # 输入transformer的特征维度
+        self.n_heads = 2    # 有几个multihead
+
         # patchTST
-        self.seq_len = 128
-        self.e_layers = 6
-        self.d_ff = 256 # 前馈网络中的隐藏层的大小，也就是第一个全连接层的输出维度
-        self.factor = 5
+
+        self.e_layers = 2   # block有几层
+        self.d_ff = 256     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
+        self.factor = 5     # factor是控制注意力稀疏程度的参数。
         self.activation = "relu"
-        self.enc_in = 150
-        self.num_class = 6
-        self.patch_len = 8
-        self.stride = 4
+        self.enc_in = 9     # enc_in 表示输入特征的维度，也可以理解为每个时间步的数据特征数量。
+
+        self.dropout = 0.5
 
         # domain_discriminator
         # self.domain_discriminator_input = 128
@@ -50,25 +49,23 @@ class HAR():
         # model configs
         self.input_channels = 9
         self.kernel_size = 5
-        self.stride = 1
-        self.dropout = 0.5
         self.num_classes = 6
 
-        # CNN and RESNET features
-        self.mid_channels = 64
-        self.final_out_channels = 128
-        self.features_len = 1
+        #GAT
+        self.in_dim = 128
+        self.hidden_dim = 64
+        self.out_dim = 128
+        self.num_heads = 4
+
+        # self.final_out_channels = 128
+        self.features_len = 2
+
 
         # TCN features
-        self.tcn_layers = [75, 150]
+        self.tcn_layers = [64, 128]
         self.tcn_final_out_channles = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
         self.tcn_dropout = 0.0
-
-        # lstm features
-        self.lstm_hid = 128
-        self.lstm_n_layers = 1
-        self.lstm_bid = False
 
         # discriminator
         self.disc_hid_dim = 64
@@ -85,7 +82,7 @@ class EEG():
         # model transformer
         self.d_model = 256
         self.n_heads = 6
-        self.num_layers = 6
+
         # patchTST
         self.seq_len = 3000
         self.e_layers = 6

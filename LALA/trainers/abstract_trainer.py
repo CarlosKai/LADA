@@ -57,13 +57,14 @@ class AbstractTrainer(object):
 
         # Specify number of hparams
         self.hparams = {**self.hparams_class.alg_hparams[self.da_method],
-                                **self.hparams_class.train_params}
+                                **self.hparams_class.train_params,
+                                **self.hparams_class.ablation_params}
 
         # metrics
         self.num_classes = self.dataset_configs.num_classes
-        self.ACC = Accuracy(task="multiclass", num_classes=self.num_classes)
-        self.F1 = F1Score(task="multiclass", num_classes=self.num_classes, average="macro")
-        self.AUROC = AUROC(task="multiclass", num_classes=self.num_classes)        
+        # self.ACC = Accuracy(task="multiclass", num_classes=self.num_classes)
+        # self.F1 = F1Score(task="multiclass", num_classes=self.num_classes, average="macro")
+        # self.AUROC = AUROC(task="multiclass", num_classes=self.num_classes)
 
 
     
@@ -95,38 +96,7 @@ class AbstractTrainer(object):
         self.last_model, self.best_model = self.algorithm.update(self.src_train_dl, self.trg_train_dl, self.loss_avg_meters, self.logger)
         return self.last_model, self.best_model
     
-    def evaluate(self, test_loader):
-        feature_extractor = self.algorithm.la_tcn.to(self.device)
-        classifier = self.algorithm.la_classifier.to(self.device)
 
-        feature_extractor.eval()
-        classifier.eval()
-
-        total_loss, preds_list, labels_list = [], [], []
-
-        with torch.no_grad():
-            for data, labels in test_loader:
-                data = data.float().to(self.device)
-                labels = labels.view((-1)).long().to(self.device)
-
-                # forward pass
-                features, _ = feature_extractor(data)
-
-                predictions = classifier(features)
-
-
-                # compute loss
-                loss = F.cross_entropy(predictions, labels)
-                total_loss.append(loss.item())
-                pred = predictions.detach()  # .argmax(dim=1)  # get the index of the max log-probability
-
-                # append predictions and labels
-                preds_list.append(pred)
-                labels_list.append(labels)
-
-        self.loss = torch.tensor(total_loss).mean()  # average loss
-        self.full_preds = torch.cat((preds_list))
-        self.full_labels = torch.cat((labels_list))
 
     def get_configs(self):
         dataset_class = get_dataset_class(self.dataset)
@@ -161,18 +131,6 @@ class AbstractTrainer(object):
         save_path = os.path.join(home_path, log_dir, f"checkpoint.pt")
         torch.save(save_dict, save_path)
 
-
-    def calculate_metrics(self):
-       
-        self.evaluate(self.trg_test_dl)
-        # accuracy  
-        acc = self.ACC(self.full_preds.argmax(dim=1).cpu(), self.full_labels.cpu()).item()
-        # f1
-        f1 = self.F1(self.full_preds.argmax(dim=1).cpu(), self.full_labels.cpu()).item()
-        # auroc 
-        auroc = self.AUROC(self.full_preds.cpu(), self.full_labels.cpu()).item()
-
-        return acc, f1, auroc
 
     def append_results_to_tables(self, table, scenario, run_id, metrics):
 

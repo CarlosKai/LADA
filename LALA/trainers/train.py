@@ -14,8 +14,7 @@ import warnings
 import sklearn.exceptions
 
 from utils import fix_randomness, starting_logs, AverageMeter
-from algorithms.algorithms import get_algorithm_class
-from models.models import get_backbone_class
+from algorithms import *
 from trainers.abstract_trainer import AbstractTrainer
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
 parser = argparse.ArgumentParser()
@@ -62,8 +61,7 @@ class Trainer(AbstractTrainer):
                 self.save_checkpoint(self.home_path, self.scenario_log_dir, self.last_model, self.best_model)
 
                 # Calculate risks and metrics
-                metrics = self.calculate_metrics()
-                # risks = self.calculate_risks()
+                metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
 
                 # Append results to tables
                 scenario = f"{src_id}_to_{trg_id}"
@@ -86,6 +84,9 @@ class Trainer(AbstractTrainer):
                 # fixing random seed
                 fix_randomness(run_id)
 
+                self.logger, self.scenario_log_dir = starting_logs(self.dataset, self.da_method, self.exp_log_dir,
+                                                                   src_id, trg_id, run_id)
+
                 # Logging
                 self.scenario_log_dir = os.path.join(self.exp_log_dir, src_id + "_to_" + trg_id + "_run_" + str(run_id))
 
@@ -102,16 +103,15 @@ class Trainer(AbstractTrainer):
 
                 # Testing the last model
                 self.algorithm.network.load_state_dict(last_chk)
-                self.evaluate(self.trg_test_dl)
-                last_metrics = self.calculate_metrics()
+
+                last_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
                 last_results = self.append_results_to_tables(last_results, f"{src_id}_to_{trg_id}", run_id,
                                                              last_metrics)
                 
 
                 # Testing the best model
                 self.algorithm.network.load_state_dict(best_chk)
-                self.evaluate(self.trg_test_dl)
-                best_metrics = self.calculate_metrics()
+                best_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
                 # Append results to tables
                 best_results = self.append_results_to_tables(best_results, f"{src_id}_to_{trg_id}", run_id,
                                                              best_metrics)

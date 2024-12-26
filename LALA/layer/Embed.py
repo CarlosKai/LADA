@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.utils import weight_norm
+from torch.nn.utils.parametrizations import weight_norm
 import math
 
 
@@ -184,7 +184,9 @@ class PatchEmbedding(nn.Module):
         n_vars = x.shape[1]
         x = self.padding_patch_layer(x)
         x = x.unfold(dimension=-1, size=self.patch_len, step=self.stride)
+        # [bs * nvars x patch_num x patch_len]
         x = torch.reshape(x, (x.shape[0] * x.shape[1], x.shape[2], x.shape[3]))
         # Input encoding
         x = self.value_embedding(x) + self.position_embedding(x)
+        # [bs * nvars x patch_num x d_model]
         return self.dropout(x), n_vars

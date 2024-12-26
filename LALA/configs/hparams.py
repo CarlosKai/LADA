@@ -25,13 +25,18 @@ class HAR():
                 "weight_decay": 0.0001
             }
         }
+        self.ablation_params = {
+            'grad_tcn': True,
+            'relation_pool': True,
+            'super_node': True
+        }
 
 
 class EEG():
     def __init__(self):
         super(EEG, self).__init__()
         self.train_params = {
-            'num_epochs': 400,
+            'num_epochs': 40,
             'batch_size': 128,
             'weight_decay': 1e-4,
             'step_size': 50,
@@ -45,6 +50,11 @@ class EEG():
                 "src_cls_loss_wt": 5.1390077646202,
                 "weight_decay": 0.0001
             }
+        }
+        self.ablation_params = {
+            'grad_tcn': True,
+            'relation_pool': True,
+            'super_node': True
         }
 
 
@@ -65,6 +75,11 @@ class WISDM():
                 "weight_decay": 0.0001
             }
         }
+        self.ablation_params = {
+            'grad_tcn': True,
+            'relation_pool': True,
+            'super_node': True
+        }
 
 
 class HHAR():
@@ -82,4 +97,9 @@ class HHAR():
                 "src_cls_loss_wt": 5.1390077646202,
                 "weight_decay": 0.0001
             }
+        }
+        self.ablation_params = {
+            'grad_tcn': True,
+            'relation_pool': True,
+            'super_node': True
         }

@@ -18,15 +18,16 @@ class PatchTST(nn.Module):
     Paper link: https://arxiv.org/pdf/2211.14730.pdf
     """
 
-    def __init__(self, configs, patch_len=16, stride=8):
+    def __init__(self, configs):
         """
         patch_len: int, patch len for patch_embedding
         stride: int, stride for patch_embedding
         """
         super().__init__()
 
-        self.seq_len = configs.seq_len
-
+        self.sequence_len = configs.sequence_len
+        patch_len = configs.patch_len
+        stride = configs.stride
         padding = stride
 
         # patching and embedding
@@ -39,7 +40,7 @@ class PatchTST(nn.Module):
                 EncoderLayer(
                     AttentionLayer(
                         FullAttention(False, configs.factor, attention_dropout=configs.dropout,
-                                      output_attention=False), configs.d_model, configs.n_heads),
+                                      output_attention=True), configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
                     dropout=configs.dropout,
@@ -51,17 +52,18 @@ class PatchTST(nn.Module):
 
         # Prediction Head
         self.head_nf = configs.d_model * \
-                       int((configs.seq_len - patch_len) / stride + 2)
+                       int((configs.sequence_len - patch_len) / stride + 2)
 
         self.flatten = nn.Flatten(start_dim=-2)
         self.dropout = nn.Dropout(configs.dropout)
         self.projection = nn.Linear(
-            self.head_nf * configs.enc_in, configs.num_class)
+            self.head_nf * configs.enc_in, configs.num_classes)
 
 
 
     def classification(self, x_enc):
         # Normalization from Non-stationary Transformer
+        # 对每一维的变量进行归一化
         means = x_enc.mean(1, keepdim=True).detach()
         x_enc = x_enc - means
         stdev = torch.sqrt(
@@ -70,11 +72,11 @@ class PatchTST(nn.Module):
 
         # do patching and embedding
         x_enc = x_enc.permute(0, 2, 1)
-        # u: [bs * nvars x patch_num x d_model]
+        # u: [bs * nvars x patch_num x d_model]         [bs x nvars x d_model]
         enc_out, n_vars = self.patch_embedding(x_enc)
 
         # Encoder
-        # z: [bs * nvars x patch_num x d_model]
+        # z: [bs * nvars x patch_num x d_model]         [bs x nvars x d_model]
         enc_out, attns = self.encoder(enc_out)
         # z: [bs x nvars x patch_num x d_model]
         enc_out = torch.reshape(
