@@ -183,7 +183,7 @@ class AbstractTrainer(object):
         results_df = pd.DataFrame([results_row], columns=table.columns)
 
         # Concatenate new dataframes with original dataframes
-        # results_df = results_df.dropna(axis=1, how='all')  # Drop columns that are all NA
+        results_df = results_df.dropna(axis=1, how='all')  # Drop columns that are all NA
         table = pd.concat([table, results_df], ignore_index=True)
 
         return table

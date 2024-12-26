@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser()
 if __name__ == "__main__":
 
     # ========  Experiments Phase ================
-    parser.add_argument('--phase',               default='train',         type=str, help='train, test')
+    parser.add_argument('--phase',               default='test',         type=str, help='train, test')
 
     # ========  Experiments Name ================
     parser.add_argument('--save_dir',               default='experiments_logs',         type=str, help='Directory containing all experiments')

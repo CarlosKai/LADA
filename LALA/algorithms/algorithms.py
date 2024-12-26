@@ -9,9 +9,7 @@ from copy import deepcopy
 from .PatchTST import PatchTST
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.utils import weight_norm
-from torchmetrics import Accuracy, AUROC, F1Score
+from torchmetrics import Accuracy, F1Score
 
 
 def get_algorithm_class(algorithm_name):
@@ -102,7 +100,7 @@ class LALA(nn.Module):
                 logger.debug(f'Target Test F1-Score: {trg_f1:.4f}')
 
             # saving the best model based on src risk
-            if (epoch + 1) % 10 == 0 and avg_meter['Src_cls_loss'].avg < best_src_risk:
+            if (epoch + 1) % 10 == 0 and avg_meter['Trg_cls_loss'].avg < best_src_risk:
                 best_src_risk = avg_meter['Src_cls_loss'].avg
                 best_model = deepcopy(self.network.state_dict())
 
