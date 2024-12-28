@@ -10,7 +10,7 @@ class HAR():
     def __init__(self):
         super(HAR, self).__init__()
         self.train_params = {
-            'num_epochs': 40,
+            'num_epochs': 300,
             'batch_size': 32,
             'weight_decay': 1e-4,
             'step_size': 50,
@@ -19,9 +19,11 @@ class HAR():
         }
         self.alg_hparams = {
             "LALA": {
-                "domain_loss_wt": 2.943729820531079,
+                # "domain_loss_wt": 2.943729820531079,
+                "domain_loss_wt": 1,
                 "learning_rate": 0.001,
-                "src_cls_loss_wt": 5.1390077646202,
+                # "src_cls_loss_wt": 5.1390077646202,
+                "src_cls_loss_wt": 1,
                 "weight_decay": 0.0001
             }
         }

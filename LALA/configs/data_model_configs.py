@@ -9,36 +9,48 @@ class HAR():
         super(HAR, self)
 
         # model transformer
-        self.d_model = 128  # 输入transformer的特征维度
-        self.n_heads = 2    # 有几个multihead
+        self.d_model = 32  # 输入transformer的特征维度
+        self.n_heads = 1    # 有几个multihead
 
         # patchTST
-
-        self.e_layers = 2   # block有几层
-        self.d_ff = 256     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
-        self.factor = 5     # factor是控制注意力稀疏程度的参数。
+        self.patch_linear_size = 1
+        self.e_layers = 1   # block有几层
+        self.d_ff = 128     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
+        self.factor = 1     # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
         self.activation = "relu"
         self.enc_in = 9     # enc_in 表示输入特征的维度，也可以理解为每个时间步的数据特征数量。
 
-        self.dropout = 0.5
+        self.dropout = 0.2
 
-        # domain_discriminator
-        # self.domain_discriminator_input = 128
 
-        # self.scenarios = [("1", "2")]
-        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"),
+        # classifier and discriminator input = final_out_channels * features_len
+        # self.final_out_channels = 64
+        # self.features_len = 9
+        self.final_out_channels = 128
+        self.features_len = 2
 
-        self.scenarios = [
-            ("1", "2"), ("1", "3"), ("1", "4"), ("1", "5"), ("1", "6"), ("1", "7"), ("1", "8"), ("1", "9"), ("1", "10"),
-            ("2", "3"), ("2", "4"), ("2", "5"), ("2", "6"), ("2", "7"), ("2", "8"), ("2", "9"), ("2", "10"),
-            ("3", "4"), ("3", "5"), ("3", "6"), ("3", "7"), ("3", "8"), ("3", "9"), ("3", "10"),
-            ("4", "5"), ("4", "6"), ("4", "7"), ("4", "8"), ("4", "9"), ("4", "10"),
-            ("5", "6"), ("5", "7"), ("5", "8"), ("5", "9"), ("5", "10"),
-            ("6", "7"), ("6", "8"), ("6", "9"), ("6", "10"),
-            ("7", "8"), ("7", "9"), ("7", "10"),
-            ("8", "9"), ("8", "10"),
-            ("9", "10")
-        ]
+        # CNN and RESNET features
+        self.mid_channels = 64
+        # self.final_out_channels = 128
+        self.stride = 1
+        self.cnn_features_len = 1
+
+
+        self.scenarios = [("15", "19")]
+        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16")]
+        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
+
+        # self.scenarios = [
+        #     ("1", "2"), ("1", "3"), ("1", "4"), ("1", "5"), ("1", "6"), ("1", "7"), ("1", "8"), ("1", "9"), ("1", "10"),
+        #     ("2", "3"), ("2", "4"), ("2", "5"), ("2", "6"), ("2", "7"), ("2", "8"), ("2", "9"), ("2", "10"),
+        #     ("3", "4"), ("3", "5"), ("3", "6"), ("3", "7"), ("3", "8"), ("3", "9"), ("3", "10"),
+        #     ("4", "5"), ("4", "6"), ("4", "7"), ("4", "8"), ("4", "9"), ("4", "10"),
+        #     ("5", "6"), ("5", "7"), ("5", "8"), ("5", "9"), ("5", "10"),
+        #     ("6", "7"), ("6", "8"), ("6", "9"), ("6", "10"),
+        #     ("7", "8"), ("7", "9"), ("7", "10"),
+        #     ("8", "9"), ("8", "10"),
+        #     ("9", "10")
+        # ]
 
         self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
         self.sequence_len = 128
@@ -52,18 +64,18 @@ class HAR():
         self.num_classes = 6
 
         #GAT
-        self.in_dim = 128
-        self.hidden_dim = 64
-        self.out_dim = 128
-        self.num_heads = 4
+        # self.in_dim = 128
+        # self.hidden_dim = 64
+        # self.out_dim = 128
+        # self.num_heads = 4
 
-        # self.final_out_channels = 128
-        self.features_len = 2
+
+
 
 
         # TCN features
         self.tcn_layers = [64, 128]
-        self.tcn_final_out_channles = self.tcn_layers[-1]
+        # self.tcn_final_out_channles = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
         self.tcn_dropout = 0.0
 

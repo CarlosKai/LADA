@@ -61,14 +61,16 @@ class Trainer(AbstractTrainer):
                 self.save_checkpoint(self.home_path, self.scenario_log_dir, self.last_model, self.best_model)
 
                 # Calculate risks and metrics
-                metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
+                metrics = self.algorithm.test_process("Target Domain Test", self.trg_test_dl, self.logger)
+                metrics_list = [metric.cpu().item() if isinstance(metric, torch.Tensor) else metric for metric in
+                                metrics]
 
                 # Append results to tables
                 scenario = f"{src_id}_to_{trg_id}"
-                table_results = self.append_results_to_tables(table_results, scenario, run_id, metrics)
+                table_results = self.append_results_to_tables(table_results, scenario, run_id, metrics_list)
 
         # Calculate and append mean and std to tables
-        table_results = self.add_mean_std_table(table_results, self.results_columns)
+        # table_results = self.add_mean_std_table(table_results, self.results_columns)
 
         # Save tables to file if needed
         self.save_tables_to_file(table_results, 'results')

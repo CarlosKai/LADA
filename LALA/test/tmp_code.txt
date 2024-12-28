@@ -1,0 +1,110 @@
+    def training_epoch(self, src_train_loader, src_test_loader, trg_train_loader, trg_test_loader, avg_meter, epoch):
+        if len(src_train_loader) > len(trg_train_loader):
+            joint_loader =enumerate(zip(src_train_loader, itertools.cycle(trg_train_loader)))
+        else:
+            joint_loader =enumerate(zip(itertools.cycle(src_train_loader), trg_train_loader))
+
+        num_batches = max(len(src_train_loader), len(trg_train_loader))
+
+        for step, ((src_x, src_y), (trg_x, trg_y)) in joint_loader:
+
+            p = float(step + epoch * num_batches) / self.hparams["num_epochs"] + 1 / num_batches
+            alpha = 2. / (1. + np.exp(-10 * p)) - 1
+
+            src_x, src_y, trg_x, trg_y = src_x.to(self.device), src_y.to(self.device), trg_x.to(self.device), trg_y.to(self.device)
+            src_tcn_last, src_tcn_feat = self.la_tcn(src_x)
+            trg_tcn_last, trg_tcn_feat = self.la_tcn(trg_x)
+            src_tcn_pred = self.la_classifier(src_tcn_last)
+            trg_tcn_pred = self.la_classifier(trg_tcn_last)
+
+
+            # TaskFusion and GAT
+            src_tf_out, src_attns = self.la_taskFusion(src_x)
+            # src_stacked_attns = torch.stack(src_attns, dim=1)
+            # src_averaged_attns = src_stacked_attns.mean(dim=2).mean(dim=1)
+            # src_mean = src_averaged_attns.mean(dim=(1, 2), keepdim=True)
+            # src_std = src_averaged_attns.std(dim=(1, 2), keepdim=True)
+            # src_normalized_attns = (src_averaged_attns - src_mean) / (src_std + 1e-5)
+
+            trg_tf_out, trg_attns = self.la_taskFusion(trg_x)
+            # trg_stacked_attns = torch.stack(trg_attns, dim=1)
+            # trg_averaged_attns = trg_stacked_attns.mean(dim=2).mean(dim=1)
+            # trg_mean = trg_averaged_attns.mean(dim=(1, 2), keepdim=True)
+            # trg_std = trg_averaged_attns.std(dim=(1, 2), keepdim=True)
+            # trg_normalized_attns = (trg_averaged_attns - trg_mean) / (trg_std + 1e-5)
+
+            # 创建源域和目标域图数据
+            # src_graph_data = self.create_graph_data(src_tf_out, src_tcn_last, src_normalized_attns)
+            # trg_graph_data = self.create_graph_data(trg_tf_out, trg_tcn_last, trg_normalized_attns)
+
+            # 运行 GAT 模型
+            # src_output = self.la_gat(src_graph_data.x, src_graph_data.edge_index, src_graph_data.edge_attr)  # 源域输出
+            # trg_output = self.la_gat(trg_graph_data.x, trg_graph_data.edge_index, trg_graph_data.edge_attr)  # 目标域输出
+            #
+            # # 输出最终结果
+            # print("Source output shape:", src_output.shape)  # [num_nodes_total_in_batch, out_dim]
+            # print("Target output shape:", trg_output.shape)  # [num_nodes_total_in_batch, out_dim]
+
+            # src_tcn_last_expanded = src_tcn_last.unsqueeze(1)
+            # src_combined = torch.cat([src_tf_out, src_tcn_last_expanded], dim=1)
+            # src_flattened = src_combined.view(src_combined.size(0), -1)
+            # src_tf_out_merge = src_tf_out.mean(dim=1)  # [32, 128]
+            # src_tf_out_merge = src_tf_out.reshape(src_tf_out.shape[0], -1)
+            # src_combined = torch.cat([src_tf_out_merge, src_tcn_last], dim=1)
+
+            # trg_tcn_last_expanded = trg_tcn_last.unsqueeze(1)
+            # trg_combined = torch.cat([trg_tf_out, trg_tcn_last_expanded], dim=1)
+            # trg_flattened = trg_combined.view(src_combined.size(0), -1)
+            # trg_tf_out_merge = trg_tf_out.mean(dim=1)  # [32, 128]
+            # trg_tf_out_merge = trg_tf_out.reshape(trg_tf_out.shape[0], -1)
+            # trg_combined = torch.cat([trg_tf_out_merge, trg_tcn_last], dim=1)
+            #
+            # src_tcn_pred = self.la_classifier(src_combined)
+            # trg_tcn_pred = self.la_classifier(trg_combined)
+            # src_final_pred = self.la_classifier(src_tf_out_merge)
+            # trg_final_pred = self.la_classifier(trg_tf_out_merge)
+            src_final_pred = src_tcn_pred
+            trg_final_pred = trg_tcn_pred
+            # src_cls_loss = self.cross_entropy(src_trans_logit, src_y)
+            src_cls_loss = self.cross_entropy(src_final_pred, src_y)
+            trg_cls_loss = self.cross_entropy(trg_final_pred, trg_y)
+
+            domain_label_src = torch.ones(len(src_x)).to(self.device)
+            domain_label_trg = torch.zeros(len(trg_x)).to(self.device)
+
+            # Domain classification loss
+            # source
+            # src_feat_reversed = ReverseLayerF.apply(src_tf_out_merge, alpha)
+            src_feat_reversed = ReverseLayerF.apply(src_tcn_last, alpha)
+            src_domain_pred = self.domain_classifier(src_feat_reversed)
+            src_domain_loss = self.cross_entropy(src_domain_pred, domain_label_src.long())
+
+            # target
+            # trg_feat_reversed = ReverseLayerF.apply(trg_tf_out_merge, alpha)
+            trg_feat_reversed = ReverseLayerF.apply(trg_tcn_last, alpha)
+            trg_domain_pred = self.domain_classifier(trg_feat_reversed)
+            trg_domain_loss = self.cross_entropy(trg_domain_pred, domain_label_trg.long())
+
+            # Total domain loss
+            domain_loss = src_domain_loss + trg_domain_loss
+
+            loss = self.hparams["src_cls_loss_wt"] * src_cls_loss + \
+                   self.hparams["domain_loss_wt"] * domain_loss
+
+            self.optimizer.zero_grad()
+            self.optimizer_disc.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            self.optimizer_disc.step()
+
+            losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss':trg_cls_loss, 'Domain_loss': domain_loss.item(), 'Total_loss': loss.item()}
+
+            for key, val in losses.items():
+                avg_meter[key].update(val, 32)
+
+        self.lr_scheduler.step()
+
+
+
+
+

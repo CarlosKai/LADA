@@ -48,7 +48,7 @@ class CNN(nn.Module):
             nn.MaxPool1d(kernel_size=2, stride=2, padding=1),
         )
 
-        self.adaptive_pool = nn.AdaptiveAvgPool1d(configs.features_len)
+        self.adaptive_pool = nn.AdaptiveAvgPool1d(configs.cnn_features_len)
 
     def forward(self, x_in):
         x = self.conv_block1(x_in)
@@ -57,7 +57,7 @@ class CNN(nn.Module):
         x = self.adaptive_pool(x)
 
         x_flat = x.reshape(x.shape[0], -1)
-        return x_flat
+        return x_flat, x
 
 
 
@@ -233,8 +233,7 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.layer = nn.Sequential(
-            # nn.Linear(configs.features_len * configs.final_out_channels, configs.disc_hid_dim),
-            nn.Linear(configs.tcn_final_out_channles * configs.features_len, configs.disc_hid_dim),
+            nn.Linear(configs.final_out_channels * configs.features_len, configs.disc_hid_dim),
             nn.ReLU(),
             nn.Linear(configs.disc_hid_dim, configs.disc_hid_dim),
             nn.ReLU(),
