@@ -9,8 +9,8 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 from torchmetrics import Accuracy, F1Score, AUROC
-from .TaskFusion import TaskFusion
-from .GAT import GAT
+from algorithms.TaskFusion import TaskFusion
+from algorithms.GAT import GAT
 from torch_geometric.data import Data, Batch
 from torchsummary import summary
 
@@ -45,7 +45,6 @@ class LALA(nn.Module):
             lr=hparams["learning_rate"],
             weight_decay=hparams["weight_decay"]
         )
-        self.lr_scheduler = StepLR(self.optimizer, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
 
         # Domain Discriminator 和其优化器
         self.domain_classifier = Discriminator(configs)
@@ -54,6 +53,10 @@ class LALA(nn.Module):
             lr=hparams["learning_rate"],
             weight_decay=hparams["weight_decay"], betas=(0.5, 0.99)
         )
+        self.lr_scheduler1 = StepLR(self.optimizer, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
+        self.lr_scheduler2 = StepLR(self.optimizer_disc, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
+
+
 
         self.network = nn.Sequential(self.la_tcn, self.la_taskFusion, self.la_classifier, self.domain_classifier)
 

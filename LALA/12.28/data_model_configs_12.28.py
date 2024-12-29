@@ -8,43 +8,32 @@ class HAR():
     def __init__(self):
         super(HAR, self)
 
-        # base information
-        self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
-        self.sequence_len = 128
-        self.num_classes = 6
-        self.input_channels = 9
-        self.shuffle = True
-        self.drop_last = True
-        self.normalize = True
+        # model transformer
+        self.d_model = 32  # 输入transformer的特征维度
+        self.n_heads = 1    # 有几个multihead
 
-        # task_fusion
-        self.d_model = 128  # 输入transformer的特征维度
-        self.n_heads = 3    # 有几个head
+        # patchTST
+        self.patch_linear_size = 1
         self.e_layers = 1   # block有几层
+        self.d_ff = 128     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
         self.factor = 1     # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
-        self.dropout = 0.1
-        # self.d_ff = 128     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
+        self.activation = "relu"
+        self.enc_in = 9     # enc_in 表示输入特征的维度，也可以理解为每个时间步的数据特征数量。
 
-        # TCN features
-        self.tcn_layers = [64, 128]
-        self.tcn_final_out_channels = self.tcn_layers[-1]
-        self.tcn_kernel_size = 17
-        self.tcn_input_channels = 1
-
-        # task pool
-        self.pool_size = 2 * self.num_classes
+        self.dropout = 0.2
 
 
         # classifier and discriminator input = final_out_channels * features_len
+        # self.final_out_channels = 64
+        # self.features_len = 9
         self.final_out_channels = 128
         self.features_len = 2
-        self.disc_hid_dim = 64
 
-        # CNN features
+        # CNN and RESNET features
         self.mid_channels = 64
+        # self.final_out_channels = 128
         self.stride = 1
         self.cnn_features_len = 1
-        self.cnn_kernel_size = 5
 
 
         self.scenarios = [("15", "19")]
@@ -63,6 +52,37 @@ class HAR():
         #     ("9", "10")
         # ]
 
+        self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
+        self.sequence_len = 128
+        self.shuffle = True
+        self.drop_last = True
+        self.normalize = True
+
+        # model configs
+        self.input_channels = 9
+        self.kernel_size = 5
+        self.num_classes = 6
+
+        #GAT
+        # self.in_dim = 128
+        # self.hidden_dim = 64
+        # self.out_dim = 128
+        # self.num_heads = 4
+
+
+
+
+
+        # TCN features
+        self.tcn_layers = [64, 128]
+        # self.tcn_final_out_channles = self.tcn_layers[-1]
+        self.tcn_kernel_size = 17
+        self.tcn_dropout = 0.0
+
+        # discriminator
+        self.disc_hid_dim = 64
+        self.hidden_dim = 500
+        self.DSKN_disc_hid = 128
 
 
         
