@@ -106,14 +106,18 @@ class Trainer(AbstractTrainer):
                 # Testing the last model
                 self.algorithm.network.load_state_dict(last_chk)
 
-                last_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
+                metrics = self.algorithm.test_process("-", self.trg_test_dl, self.logger)
+                # metrics_list = [metric.cpu().item() if isinstance(metric, torch.Tensor) else metric for metric in
+                #                 metrics]
+
+                # last_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
                 last_results = self.append_results_to_tables(last_results, f"{src_id}_to_{trg_id}", run_id,
-                                                             last_metrics)
+                                                             metrics)
                 
 
                 # Testing the best model
                 self.algorithm.network.load_state_dict(best_chk)
-                best_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
+                best_metrics = self.algorithm.test_process("-", self.trg_test_dl, self.logger)
                 # Append results to tables
                 best_results = self.append_results_to_tables(best_results, f"{src_id}_to_{trg_id}", run_id,
                                                              best_metrics)

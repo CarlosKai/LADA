@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from torchmetrics import Accuracy, F1Score, AUROC
 from algorithms.TaskFusion import TaskFusion
-from algorithms.GAT import GAT
+from algorithms.GNN import GAT
 from torch_geometric.data import Data, Batch
 from torchsummary import summary
 
@@ -359,6 +359,7 @@ class LALA(nn.Module):
 
             loss = self.hparams["src_cls_loss_wt"] * src_cls_loss + \
                    self.hparams["domain_loss_wt"] * domain_loss
+
 
             self.optimizer.zero_grad()
             self.optimizer_disc.zero_grad()

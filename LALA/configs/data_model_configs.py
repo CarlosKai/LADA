@@ -31,25 +31,31 @@ class HAR():
         self.tcn_kernel_size = 17
         self.tcn_input_channels = 1
 
-        # task pool
-        self.pool_size = 2 * self.num_classes
+        # gnn and lstm
+        self.gnn_in_features = 1
+        self.gnn_out_features = 16
+        self.lstm_hidden_size = 64
+        self.lstm_out_features = 128
 
 
         # classifier and discriminator input = final_out_channels * features_len
         self.final_out_channels = 128
-        self.features_len = 2
+        self.label_relation_classifier_input = self.input_channels * self.input_channels
+        self.feature_classifier_input = 128
+        self.features_len = 1
         self.disc_hid_dim = 64
 
         # CNN features
-        self.mid_channels = 64
+        self.cnn_input_channels = 1
+        self.mid_channels = 16
         self.stride = 1
         self.cnn_features_len = 1
         self.cnn_kernel_size = 5
 
 
-        self.scenarios = [("15", "19")]
+        # self.scenarios = [("15", "19")]
         # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16")]
-        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
+        self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
 
         # self.scenarios = [
         #     ("1", "2"), ("1", "3"), ("1", "4"), ("1", "5"), ("1", "6"), ("1", "7"), ("1", "8"), ("1", "9"), ("1", "10"),

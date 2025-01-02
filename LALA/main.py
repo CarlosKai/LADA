@@ -6,11 +6,11 @@ parser = argparse.ArgumentParser()
 if __name__ == "__main__":
 
     # ========  Experiments Phase ================
-    parser.add_argument('--phase',               default='train',         type=str, help='train, test')
+    parser.add_argument('--phase',               default='test',         type=str, help='train, test')
 
     # ========  Experiments Name ================
     parser.add_argument('--save_dir',               default='experiments_logs',         type=str, help='Directory containing all experiments')
-    parser.add_argument('--exp_name',               default='EXP1',         type=str, help='experiment name')
+    parser.add_argument('--exp_name',               default='EXP2_with_test',         type=str, help='experiment name')
 
     # ========= Select the DA methods ============
     parser.add_argument('--da_method',              default='LALA',               type=str, help='MCD, NO_ADAPT, Deep_Coral, MMDA, DANN, CDAN, DIRT, DSAN, HoMM, CoDATS, AdvSKM, SASA, CoTMix, TARGET_ONLY')
