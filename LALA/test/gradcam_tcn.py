@@ -4,8 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 import numpy as np
-import cv2
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 
 # Dataset for Time-Series Data
@@ -28,12 +27,12 @@ class TCN(nn.Module):
         self.conv_block1 = nn.Sequential(
             nn.Conv1d(input_channels, 64, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2)
+            # nn.MaxPool1d(kernel_size=2)  # Output length: 128 -> 64
         )
         self.conv_block2 = nn.Sequential(
             nn.Conv1d(64, 128, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2)
+            nn.MaxPool1d(kernel_size=2)  # Output length: 64 -> 32
         )
         self.fc = nn.Linear(128, num_classes)
 
@@ -45,7 +44,50 @@ class TCN(nn.Module):
         return x
 
 
-# Grad-CAM Class
+# Grad-CAM Implementation
+# class GradCAM:
+#     def __init__(self, model, target_layer):
+#         self.model = model
+#         self.target_layer = target_layer
+#         self.gradients = None
+#         self.activations = None
+#         self._register_hooks()
+#
+#     def _register_hooks(self):
+#         def forward_hook(module, input, output):
+#             self.activations = output  # Save the feature maps
+#
+#         def backward_hook(module, grad_in, grad_out):
+#             self.gradients = grad_out[0]  # Save the gradients
+#
+#         self.target_layer.register_forward_hook(forward_hook)
+#         self.target_layer.register_backward_hook(backward_hook)
+#
+#     def generate_cam(self, input_tensor, target_class=None):
+#         input_tensor.requires_grad = True
+#         outputs = self.model(input_tensor)
+#         if target_class is None:
+#             target_class = outputs.argmax(dim=1)  # Predicted class
+#
+#         scores = outputs[:, target_class]
+#         scores.backward(torch.ones_like(scores))
+#
+#         weights = self.gradients.mean(dim=2, keepdim=True)  # Shape: (batch_size, num_channels, 1)
+#         cam = weights * self.activations  # Shape: (batch_size, num_channels, sequence_length)
+#         cam = F.relu(cam).mean(dim=1).squeeze().detach().cpu().numpy()  # Average over channels
+#
+#         # Normalize CAM
+#         cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)
+#
+#         return cam  # Shape: (sequence_length,)
+#
+#     def mask_important_segments(self, input_tensor, cam, threshold=0.5):
+#         cam = torch.from_numpy(cam).float().unsqueeze(0).unsqueeze(0).to(input_tensor.device)  # Shape: (1, 1, L_cam)
+#         cam_resized = F.interpolate(cam, size=input_tensor.size(2), mode='linear', align_corners=False).squeeze()
+#         mask = (cam_resized < threshold).float()  # 低于阈值的时间步被保留
+#         mask = mask.unsqueeze(0).unsqueeze(0)
+#         masked_input = input_tensor * mask  # Apply the mask to the input
+#         return masked_input
 class GradCAM:
     def __init__(self, model, target_layer):
         self.model = model
@@ -56,127 +98,75 @@ class GradCAM:
 
     def _register_hooks(self):
         def forward_hook(module, input, output):
-            self.activations = output
+            self.activations = output  # Save the feature maps for the batch
 
         def backward_hook(module, grad_in, grad_out):
-            self.gradients = grad_out[0]
+            self.gradients = grad_out[0]  # Save the gradients for the batch
 
         self.target_layer.register_forward_hook(forward_hook)
         self.target_layer.register_backward_hook(backward_hook)
 
     def generate_cam(self, input_tensor, target_class=None):
         input_tensor.requires_grad = True
-        outputs = self.model(input_tensor)  # Forward pass
+        outputs = self.model(input_tensor)  # Shape: (batch_size, num_classes)
+
+        # If target class is not provided, use the predicted class for each sample
         if target_class is None:
-            target_class = outputs.argmax(dim=1)  # Predicted class
+            target_class = outputs.argmax(dim=1)  # Shape: (batch_size,)
 
-        scores = outputs[:, target_class]  # Class scores
-        scores.backward(torch.ones_like(scores))  # Backward pass
+        # Create a tensor of scores for each sample in the batch
+        scores = torch.gather(outputs, 1, target_class.view(-1, 1)).squeeze()  # Shape: (batch_size,)
+        scores.backward(torch.ones_like(scores))  # Compute gradients
 
-        weights = self.gradients.mean(dim=2, keepdim=True)  # Global average pooling每个通道在全局上的权重
-        # cam = (weights * self.activations).sum(dim=1)  # Weighted sum of activations
-        # cam = F.relu(cam)  # ReLU to keep only positive values
-        #
-        # # Normalize and interpolate to match input size
-        # cam = cam.unsqueeze(1)  # Add channel dimension
-        # cam = F.interpolate(cam, size=(input_tensor.size(2)), mode='linear', align_corners=False)
-        # cam = cam.squeeze()  # Remove channel dimension
-        # cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)  # Normalize between 0 and 1
-        # return cam
-
-        # Compute channel-wise Grad-CAM by multiplying weights with activations (no sum over channels)
+        # Compute weights by averaging gradients over the time dimension
+        weights = self.gradients.mean(dim=2, keepdim=True)  # Shape: (batch_size, num_channels, 1)
         cam = weights * self.activations  # Shape: (batch_size, num_channels, sequence_length)
+        cam = F.relu(cam).mean(
+            dim=1).detach().cpu().numpy()  # Average over channels, shape: (batch_size, sequence_length)
 
-        # Apply ReLU to keep only positive contributions
-        cam = F.relu(cam)
-        # Normalize each channel's heatmap individually
-        cam = cam.cpu().detach().numpy()  # Convert to NumPy for further processing
-        batch_size, num_channels, sequence_length = cam.shape
-        cam_normalized = np.zeros_like(cam)  # To store normalized heatmaps
+        # Normalize CAM for each sample in the batch
+        cams = []
+        for c in cam:
+            c = (c - c.min()) / (c.max() - c.min() + 1e-8)
+            cams.append(c)
 
-        for i in range(num_channels):  # Normalize each channel separately
-            channel_heatmap = cam[:, i, :]
-            channel_heatmap = (channel_heatmap - channel_heatmap.min()) / (
-                        channel_heatmap.max() - channel_heatmap.min() + 1e-8)
-            cam_normalized[:, i, :] = channel_heatmap
+        return np.array(cams)  # Shape: (batch_size, sequence_length)
 
-        return cam_normalized  # Shape: (batch_size, num_channels, sequence_length)
-
-
-# Training Function
-def train_model(model, train_loader, criterion, optimizer, epochs=10, device='cuda'):
-    model = model.to(device)
-    for epoch in range(epochs):
-        model.train()
-        running_loss = 0.0
-        for i, (inputs, labels) in enumerate(train_loader):
-            inputs, labels = inputs.to(device), labels.to(device)
-
-            # Forward pass
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-
-            # Backward pass
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss.item()
-
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
-    print("Training complete!")
+    def mask_important_segments(self, input_tensor, cams, threshold=0.5):
+        """
+        Mask time steps with importance higher than the threshold for the entire batch.
+        """
+        batch_size = input_tensor.size(0)
+        masks = []
+        for cam in cams:
+            cam_tensor = torch.from_numpy(cam).float().unsqueeze(0).unsqueeze(0).to(
+                input_tensor.device)  # (1, 1, L_cam)
+            cam_resized = F.interpolate(cam_tensor, size=input_tensor.size(2), mode='linear',
+                                        align_corners=False).squeeze()  # (sequence_length,)
+            mask = (cam_resized < threshold).float().unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, sequence_length)
+            masks.append(mask)
+        masks = torch.cat(masks, dim=0)  # Shape: (batch_size, 1, sequence_length)
+        masked_input = input_tensor * masks  # Apply mask for each sample in the batch
+        return masked_input  # Shape: (batch_size, num_channels, sequence_length)
 
 
-# Generate Grad-CAM Heatmap
-def generate_gradcam_heatmap(model, target_layer, input_tensor, device='cuda'):
-    model = model.to(device)
-    input_tensor = input_tensor.to(device)
-
-    grad_cam = GradCAM(model, target_layer)
-    cam = grad_cam.generate_cam(input_tensor)
-
-    # Convert Grad-CAM to heatmaps for each channel
-    cam = cam[0]  # Select the first sample in the batch (shape: [num_channels, sequence_length])
-    heatmaps = []
-
-    for channel in range(cam.shape[0]):
-        # Convert to heatmap (0-255 range)
-        heatmap = np.uint8(255 * cam[channel])
-        heatmaps.append(heatmap)
-
-    # Combine all channel heatmaps into a single 9x128 image (optional)
-    combined_heatmap = np.stack(heatmaps, axis=0)  # Shape: (num_channels, sequence_length)
-
-    return combined_heatmap  # Shape: (9, 128)
-
-    # Convert Grad-CAM to heatmap
-    # cam = cam.cpu().detach().numpy()  # Convert to NumPy
-    # heatmap = np.uint8(255 * cam)
-    # heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
-    #
-    # # Overlay heatmap on input
-    # input_tensor_np = input_tensor.cpu().detach().numpy().squeeze()  # Shape: (9, 128)
-    # input_tensor_np = input_tensor_np.mean(axis=0)  # Average over channels for visualization
-    # input_tensor_np = np.uint8(
-    #     255 * (input_tensor_np - input_tensor_np.min()) / (input_tensor_np.max() - input_tensor_np.min()))
-    #
-    # # Convert input_tensor_np to 3 channels to match heatmap
-    # input_tensor_np = cv2.cvtColor(input_tensor_np, cv2.COLOR_GRAY2BGR)
-    #
-    # # Resize input_tensor_np to match heatmap
-    # input_tensor_np = cv2.resize(input_tensor_np, (heatmap.shape[1], heatmap.shape[0]))
-    #
-    # overlay = cv2.addWeighted(input_tensor_np, 0.6, heatmap, 0.4, 0)
-    # return heatmap, overlay
+# Visualization function
+def visualize_cam(input_seq, cam, title="Grad-CAM Importance Over Time Steps"):
+    plt.figure(figsize=(10, 4))
+    plt.plot(input_seq[0, 0].cpu().detach().numpy(), label='Original Input')
+    plt.plot(cam, label='Grad-CAM Importance', color='red', alpha=0.6)
+    plt.title(title)
+    plt.legend()
+    plt.show()
 
 
-# Main Script
-if __name__ == "__main__":
+# Main Function
+def main():
     # Simulated data
     num_samples = 1000
     num_classes = 5
-    input_channels = 9
-    input_length = 128
+    input_channels = 144  # Number of features
+    input_length = 128  # Sequence length
 
     # Generate random time-series data
     data = np.random.rand(num_samples, input_channels, input_length).astype(np.float32)
@@ -190,7 +180,6 @@ if __name__ == "__main__":
 
     # Create datasets and dataloaders
     train_dataset = TimeSeriesDataset(train_data, train_labels)
-    test_dataset = TimeSeriesDataset(test_data, test_labels)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     # Initialize model, loss, and optimizer
@@ -198,18 +187,42 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    # Train the model
-    train_model(model, train_loader, criterion, optimizer, epochs=10)
+    # Training loop
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    for epoch in range(5):
+        model.train()
+        running_loss = 0.0
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
 
-    # Generate Grad-CAM for a test sample
-    test_sample = torch.tensor(test_data[0:1], dtype=torch.float32)  # Use the first test sample
-    target_layer = model.conv_block2[0]  # Choose the target layer
-    heatmap, overlay = generate_gradcam_heatmap(model, target_layer, test_sample)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-    # Save and display Grad-CAM results
-    cv2.imwrite('gradcam_heatmap.png', heatmap)
-    cv2.imwrite('gradcam_overlay.png', overlay)
+            running_loss += loss.item()
 
-    plt.imshow(overlay, cmap='jet')
-    plt.title("Grad-CAM Heatmap Overlay")
-    plt.show()
+        print(f"Epoch {epoch + 1}, Loss: {running_loss / len(train_loader)}")
+
+    print("Training complete!")
+
+    # Grad-CAM analysis
+    model.eval()
+    test_sample = torch.tensor(test_data[0:1], dtype=torch.float32).to(device)  # First test sample
+    target_layer = model.conv_block2[0]  # Second convolution layer
+    grad_cam = GradCAM(model, target_layer)
+
+    # Generate CAM and mask important segments
+    test_samples = torch.tensor(test_data[0:8], dtype=torch.float32).to(device)  # First 8 test samples
+    time_step_importances = grad_cam.generate_cam(test_samples)
+    masked_inputs = grad_cam.mask_important_segments(test_samples, time_step_importances, threshold=0.5)
+
+    # Pass masked inputs through the model
+    masked_outputs = model(masked_inputs)
+    print(f"Original Output: {model(test_samples)}")
+    print(f"Masked Output: {masked_outputs}")
+
+if __name__ == "__main__":
+    main()

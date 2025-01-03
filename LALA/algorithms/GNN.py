@@ -36,12 +36,12 @@ class GNNTimeModel(nn.Module):
         self.learnable_adj = nn.Parameter(torch.randn(self.num_time_steps, self.num_variables, self.num_variables))  # 可学习的邻接矩阵
 
         # LSTM 层
-        self.lstm = nn.LSTM(input_size=self.num_variables * configs.gnn_out_features,
-                            hidden_size=configs.lstm_hidden_size,
-                            batch_first=True)
+        # self.lstm = nn.LSTM(input_size=self.num_variables * configs.gnn_out_features,
+        #                     hidden_size=configs.lstm_hidden_size,
+        #                     batch_first=True)
 
         # 全连接层
-        self.fc = nn.Linear(configs.lstm_hidden_size, configs.lstm_out_features)
+        # self.fc = nn.Linear(configs.lstm_hidden_size, configs.lstm_out_features)
 
     def forward(self, X):
         """
@@ -75,11 +75,11 @@ class GNNTimeModel(nn.Module):
         gnn_outputs = gnn_outputs.view(batch_size, num_time_steps, -1)  # Flatten nodes
 
         # LSTM 时间序列建模
-        lstm_out, _ = self.lstm(gnn_outputs)  # [batch_size, num_time_steps, lstm_hidden_size]
+        # lstm_out, _ = self.lstm(gnn_outputs)  # [batch_size, num_time_steps, lstm_hidden_size]
 
         # 最后时间步的隐藏状态用于预测
-        output = self.fc(lstm_out[:, -1, :])  # [batch_size, out_features]
-        return output
+        # output = self.fc(lstm_out[:, -1, :])  # [batch_size, out_features]
+        return gnn_outputs
 
 # # 示例用法
 # batch_size = 32

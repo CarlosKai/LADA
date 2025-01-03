@@ -26,13 +26,18 @@ class HAR():
                 "trg_mmd_loss_wt": 1,
                 # "src_cls_loss_wt": 5.1390077646202,
                 "src_cls_loss_wt": 2,
+                'dual_contrastive_loss_wt': 1,
+                "contrast_indi_loss_wt" : 0.5,
+                "contrast_inst_loss_wt": 0.5,
                 "weight_decay": 0.0001
             }
         }
         self.ablation_params = {
-            'grad_tcn': True,
-            'relation_pool': True,
-            'super_node': True
+            'label_distribution_align': True,
+            'task_relation_classify': True,
+            'label_attentive_align': True,
+            'dual_contrastive_inst_loss': True,
+            'dual_contrastive_indi_grad_cam_loss': True
         }
 
 

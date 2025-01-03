@@ -71,7 +71,7 @@ class TCN(nn.Module):
         out_1 = self.relu(x1 + res1)
 
         out = out_1[:, :, -1]
-        return out, out_1
+        return out
 
 
 class Classifier1(nn.Module):
@@ -135,9 +135,8 @@ class CNN(nn.Module):
         x = self.conv_block2(x)
         x = self.conv_block3(x)
         x = self.adaptive_pool(x)
-
         x_flat = x.reshape(x.shape[0], -1)
-        return x_flat, x
+        return x_flat
 
 class Discriminator(nn.Module):
     """Discriminator model for source domain."""

@@ -25,17 +25,18 @@ class HAR():
         self.dropout = 0.1
         # self.d_ff = 128     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
 
+        # gnn and lstm
+        self.gnn_in_features = 1
+        self.gnn_out_features = 16
+        # self.lstm_hidden_size = 64
+        # self.lstm_out_features = 128
+
         # TCN features
         self.tcn_layers = [64, 128]
         self.tcn_final_out_channels = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
-        self.tcn_input_channels = 1
+        self.tcn_input_channels = self.input_channels * self.gnn_out_features
 
-        # gnn and lstm
-        self.gnn_in_features = 1
-        self.gnn_out_features = 16
-        self.lstm_hidden_size = 64
-        self.lstm_out_features = 128
 
 
         # classifier and discriminator input = final_out_channels * features_len
@@ -53,9 +54,9 @@ class HAR():
         self.cnn_kernel_size = 5
 
 
-        # self.scenarios = [("15", "19")]
+        self.scenarios = [("15", "19")]
         # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16")]
-        self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
+        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
 
         # self.scenarios = [
         #     ("1", "2"), ("1", "3"), ("1", "4"), ("1", "5"), ("1", "6"), ("1", "7"), ("1", "8"), ("1", "9"), ("1", "10"),

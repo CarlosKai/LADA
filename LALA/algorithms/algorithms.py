@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import itertools    
+import itertools
+import torch.nn.functional as F
 
 from torch.optim.lr_scheduler import StepLR
 from copy import deepcopy
@@ -11,6 +12,7 @@ from torchmetrics import Accuracy, F1Score, AUROC
 from .TaskFusion import TaskFusion
 from .backbone import *
 from .GNN import GNNTimeModel
+from .Grad_TCN import GradTCN
 
 
 
@@ -33,17 +35,17 @@ class LALA(nn.Module):
         # 构建模型
         self.la_cnn = CNN(configs)
         self.la_taskFusion = TaskFusion(configs)
-        # self.la_tcn = TCN(configs)
+        self.la_tcn = TCN(configs)
 
-        self.la_gnn_lstm = GNNTimeModel(configs)
+        self.la_gnn = GNNTimeModel(configs)
         self.la_label_relation_classifier = Classifier1(configs)
         self.la_feature_classifier = Classifier2(configs)
         self.domain_classifier = Discriminator(configs)
 
         self.net1 = nn.Sequential(self.la_cnn)
         self.net2 = nn.Sequential(self.la_taskFusion, self.la_label_relation_classifier)
-        self.net3 = nn.Sequential(self.la_gnn_lstm, self.la_feature_classifier)
-        self.network = nn.Sequential(self.la_cnn, self.la_taskFusion, self.la_label_relation_classifier, self.la_gnn_lstm, self.la_feature_classifier, self.domain_classifier)
+        self.net3 = nn.Sequential(self.la_gnn, self.la_tcn, self.la_feature_classifier)
+        self.network = nn.Sequential(self.la_cnn, self.la_tcn, self.la_taskFusion, self.la_label_relation_classifier, self.la_gnn, self.la_feature_classifier, self.domain_classifier)
         # 优化器和学习率调度器
         self.optimizer1 = torch.optim.Adam(
             self.net1.parameters(),
@@ -89,10 +91,12 @@ class LALA(nn.Module):
         with torch.no_grad():
             self.la_cnn.eval()  # Set the model to eval mode
             self.la_taskFusion.eval()
-            self.la_gnn_lstm.eval()
+            self.la_gnn.eval()
+            self.la_tcn.eval()
             self.la_label_relation_classifier.eval()
             self.la_feature_classifier.eval()
             self.domain_classifier.eval()
+
 
             for data, labels in trg_test_loader:
                 trg_x = data.float().to(self.device)
@@ -103,10 +107,11 @@ class LALA(nn.Module):
                 n_vars = data.shape[1]
                 n_batches = data.shape[0]
                 trg_x = trg_x.reshape(n_batches * n_vars, 1, -1)
-                trg_cnn_last, _ = self.la_cnn(trg_x)
+                trg_cnn_last = self.la_cnn(trg_x)
                 trg_cnn_last = trg_cnn_last.reshape(n_batches, n_vars, -1)
-                trg_gnn_feat = self.la_gnn_lstm(trg_cnn_last)
-                predictions = self.la_feature_classifier(trg_gnn_feat)
+                trg_gnn_feat = self.la_gnn(trg_cnn_last)
+                trg_tcn_feat = self.la_tcn(trg_gnn_feat.permute(0,2,1))
+                predictions = self.la_feature_classifier(trg_tcn_feat)
                 probabilities = torch.softmax(predictions, dim=1)
                 pred = predictions.argmax(dim=1)
 
@@ -118,7 +123,8 @@ class LALA(nn.Module):
         # Switch back to train mode
         self.la_cnn.train()
         self.la_taskFusion.train()
-        self.la_gnn_lstm.train()
+        self.la_gnn.train()
+        self.la_tcn.train()
         self.la_label_relation_classifier.train()
         self.la_feature_classifier.train()
         self.domain_classifier.train()
@@ -194,8 +200,8 @@ class LALA(nn.Module):
 
             src_x = src_x.reshape(n_batches * n_vars, 1, -1)
             trg_x = trg_x.reshape(n_batches * n_vars, 1, -1)
-            src_cnn_last, _ = self.la_cnn(src_x)
-            trg_cnn_last, _ = self.la_cnn(trg_x)
+            src_cnn_last = self.la_cnn(src_x)
+            trg_cnn_last = self.la_cnn(trg_x)
             src_cnn_last = src_cnn_last.reshape(n_batches, n_vars, -1)
             trg_cnn_last = trg_cnn_last.reshape(n_batches, n_vars, -1)
 
@@ -204,30 +210,62 @@ class LALA(nn.Module):
             src_fusion_attn = src_fusion_attn.reshape(n_batches, -1)
             trg_fusion_attn = trg_fusion_attn.reshape(n_batches, -1)
 
-            src_gnn_feat = self.la_gnn_lstm(src_cnn_last)
-            trg_gnn_feat = self.la_gnn_lstm(trg_cnn_last)
+            src_gnn_feat = self.la_gnn(src_cnn_last)
+            trg_gnn_feat = self.la_gnn(trg_cnn_last)
+
+            src_gnn_feat = src_gnn_feat.permute(0, 2, 1)
+            trg_gnn_feat = trg_gnn_feat.permute(0, 2, 1)
+
 
             src_task_pred = self.la_label_relation_classifier(src_fusion_attn)
             trg_task_pred = self.la_label_relation_classifier(trg_fusion_attn)
-
-            src_final_pred = self.la_feature_classifier(src_gnn_feat)
-            trg_final_pred = self.la_feature_classifier(trg_gnn_feat)
 
             src_task_loss = self.cross_entropy(src_task_pred, src_y)
 
             # trg_task_loss = self.cross_entropy(trg_task_pred, trg_y)
 
+            src_tcn_feat = self.la_tcn(src_gnn_feat)
+            trg_tcn_feat = self.la_tcn(trg_gnn_feat)
+
+            src_final_pred = self.la_feature_classifier(src_tcn_feat)
+            trg_final_pred = self.la_feature_classifier(trg_tcn_feat)
+
+            # Grad_TCN
+            src_masked_irrelated_tcn_pred, src_masked_related_tcn_pred  = self.count_batch_Grad_TCN(src_gnn_feat, src_y)
+
+            src_label_max = src_final_pred.argmax(dim=1)
+            src_label_min = src_final_pred.argmin(dim=1)
+            trg_label_max = trg_final_pred.argmax(dim=1)
+            trg_label_min = trg_final_pred.argmin(dim=1)
+
+            src_f_pos = self.get_cls_weiight(src_tcn_feat, src_y)
+            src_f_pos_label_max = self.get_cls_weiight(src_tcn_feat, src_label_max)
+            trg_f_pos = self.get_cls_weiight(trg_tcn_feat, trg_label_max)
+            src_f_neg = self.get_cls_weiight(src_tcn_feat, src_label_min)
+            trg_f_neg = self.get_cls_weiight(trg_tcn_feat, trg_label_min)
+
+            loss_indi = self.instance_contrastive_loss_v3(src_final_pred, src_masked_irrelated_tcn_pred, src_masked_related_tcn_pred) /2.0
+            # loss_indi = torch.tensor(0).to(self.device)
+            loss_inst = self.instance_contrastive_loss_v3(src_tcn_feat, src_f_pos, [trg_f_pos, trg_f_neg])
+            # contrast_loss = loss_inst + loss_indi
+            contrast_loss =  loss_inst * self.hparams["contrast_inst_loss_wt"]  + loss_indi * self.hparams["contrast_indi_loss_wt"]
+            # if epoch < 50:
+            #     contrast_loss = loss_inst  # 只优化跨域损失
+            # else:
+            #     contrast_loss = loss_inst + loss_indi  # 同时优化内部损失
+
             src_cls_loss = self.cross_entropy(src_final_pred, src_y)
             trg_cls_loss = self.cross_entropy(trg_final_pred, trg_y)
 
-
             # Domain classification loss
-            src_feat_reversed = ReverseLayerF.apply(src_gnn_feat, alpha)
+            # source
+            # src_feat_reversed = ReverseLayerF.apply(src_tcn_feat, alpha)
+            src_feat_reversed = ReverseLayerF.apply(src_f_pos, alpha)
             src_domain_pred = self.domain_classifier(src_feat_reversed)
             src_domain_loss = self.cross_entropy(src_domain_pred, domain_label_src.long())
 
             # target
-            trg_feat_reversed = ReverseLayerF.apply(trg_gnn_feat, alpha)
+            trg_feat_reversed = ReverseLayerF.apply(trg_tcn_feat, alpha)
             trg_domain_pred = self.domain_classifier(trg_feat_reversed)
             trg_domain_loss = self.cross_entropy(trg_domain_pred, domain_label_trg.long())
 
@@ -262,7 +300,7 @@ class LALA(nn.Module):
             #加入目标域mmd损失的情况
             loss1 = src_task_loss + trg_mmd_loss
             loss2 = self.hparams["src_cls_loss_wt"] * src_cls_loss + \
-                    self.hparams["domain_loss_wt"] * domain_loss
+                    self.hparams["domain_loss_wt"] * domain_loss + self.hparams["dual_contrastive_loss_wt"] * contrast_loss
 
             loss3 = self.hparams["src_cls_loss_wt"] * src_cls_loss + \
                     self.hparams["domain_loss_wt"] * domain_loss + src_task_loss + trg_mmd_loss
@@ -277,10 +315,11 @@ class LALA(nn.Module):
             self.optimizer_disc.step()
             self.optimizer1.step()
 
-
-            losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss':trg_cls_loss.item(), 'Domain_loss': domain_loss.item(),
-                      'Src_task_loss': src_task_loss.item(), 'class_feature_and_domain_loss': loss1.item(),
-                      'Trg_MMD_loss': trg_mmd_loss, 'Total_loss': loss3.item()}
+            losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss':trg_cls_loss.item(),
+                      'Domain_loss': domain_loss.item(), 'Src_task_loss': src_task_loss.item(),
+                      'class_feature_and_domain_loss': loss1.item(), 'Trg_MMD_loss': trg_mmd_loss,
+                      'Contrast_loss': contrast_loss.item(), 'Contrast_loss_inst': loss_inst.item(),
+                      'Contrast_loss_indi': loss_indi.item(), 'Total_loss': loss3.item()}
 
             for key, val in losses.items():
                 avg_meter[key].update(val, 32)
@@ -288,3 +327,57 @@ class LALA(nn.Module):
         self.lr_scheduler1.step()
         self.lr_scheduler2.step()
         self.lr_scheduler3.step()
+
+    def get_cls_weiight(self, f, labels):
+        # 计算src_feat权重
+        w = self.la_feature_classifier.logits.weight[labels].detach()
+        eng_before = (f ** 2).sum(dim=1, keepdim=True)  # 原始能量 [B, 1]
+        eng_after = ((f * w) ** 2).sum(dim=1, keepdim=True)  # 调整后的能量 [B, 1]
+        scalar = (eng_before / eng_after).sqrt()  # 计算缩放因子
+        w_pos = w * scalar  # 对齐后的权重
+        f_pos = f * w_pos
+        return f_pos
+
+
+    def instance_contrastive_loss_v3(self, z1, z2, negatives):
+        """
+        z1: 主特征 (正样本对的一部分)，shape: (batch_size, time_steps)
+        z2: 正样本对，shape: (batch_size, time_steps)
+        negatives: 负样本对列表 [z3, z4, ...]，每个 shape: (batch_size, time_steps)
+        """
+        # 计算正样本对相似度
+        sim_pos = F.cosine_similarity(z1.unsqueeze(1), z2.unsqueeze(1), dim=1)  # shape: (batch_size, time_steps)
+
+        # 计算负样本对相似度
+        sim_neg_list = [F.cosine_similarity(z1.unsqueeze(1), neg.unsqueeze(1), dim=1) for neg in negatives]
+        sim_neg = torch.stack(sim_neg_list, dim=0)  # shape: (num_negatives, batch_size, time_steps)
+
+        # 计算分母：正样本和所有负样本相似度的指数和
+        denominator = torch.exp(sim_pos) + torch.sum(torch.exp(sim_neg), dim=0)  # shape: (batch_size, time_steps)
+
+        # 计算对比损失
+        loss = -torch.log(torch.exp(sim_pos) / denominator)  # shape: (batch_size, time_steps)
+        loss = loss.mean()  # 对时间步和 batch 平均
+
+        return loss
+
+    def count_batch_Grad_TCN(self, src_gnn_feat, src_y):
+        self.la_tcn.eval()
+        self.la_feature_classifier.eval()
+        target_layer = self.la_tcn.conv_block2[0]  # Second convolution layer
+        grad_cam = GradTCN(self.la_tcn, self.la_feature_classifier, target_layer)
+
+        # Generate CAM and mask important segments
+        time_step_importances = grad_cam.generate_cam(src_gnn_feat, src_y)
+        masked_irrelated_inputs, masked_related_inputs = grad_cam.mask_important_segments(src_gnn_feat, time_step_importances)
+
+        # Pass masked inputs through the model
+        masked_related_outputs = self.la_tcn(masked_related_inputs)
+        masked_irrelated_outputs = self.la_tcn(masked_irrelated_inputs)
+        masked_related_outputs = self.la_feature_classifier(masked_related_outputs)
+        masked_irrelated_outputs = self.la_feature_classifier(masked_irrelated_outputs)
+        self.la_tcn.train()
+        self.la_feature_classifier.train()
+        return masked_irrelated_outputs, masked_related_outputs
+
+
