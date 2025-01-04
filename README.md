@@ -1,2 +1,2 @@
-# LALA
+# LADA
 time series adaptation
