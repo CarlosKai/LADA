@@ -123,6 +123,8 @@ class CNN(nn.Module):
         self.conv_block3 = nn.Sequential(
             nn.Conv1d(configs.mid_channels * 2, configs.final_out_channels, kernel_size=8, stride=1, bias=False,
                       padding=4),
+            # nn.Conv1d(configs.mid_channels , configs.final_out_channels, kernel_size=8, stride=1, bias=False,
+            #           padding=4),
             nn.BatchNorm1d(configs.final_out_channels),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=2, stride=2, padding=1),

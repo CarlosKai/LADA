@@ -4,12 +4,24 @@ def get_dataset_class(dataset_name):
         raise NotImplementedError("Dataset not found: {}".format(dataset_name))
     return globals()[dataset_name]
 
+
 class HAR():
     def __init__(self):
-        super(HAR, self)
+        super().__init__()
+
+        self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
+
+        # self.scenarios = []
+        # for i in range(1, 20):
+        #     for j in range(1, 20):
+        #         if i != j:
+        #             self.scenarios.append((str(i), str(j)))
+
+        self.scenarios = [("15", "19")]
+        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"),
+        #                   ("13", "19"), ("18", "21"), ("20", "6"), ("23", "13"), ("24", "12")]
 
         # base information
-        self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
         self.sequence_len = 128
         self.num_classes = 6
         self.input_channels = 9
@@ -19,15 +31,16 @@ class HAR():
 
         # task_fusion
         self.d_model = 128  # 输入transformer的特征维度
-        self.n_heads = 3    # 有几个head
-        self.e_layers = 1   # block有几层
-        self.factor = 1     # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
+        self.n_heads = 3  # 有几个head
+        self.e_layers = 1  # block有几层
+        self.factor = 1  # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
         self.dropout = 0.1
         # self.d_ff = 128     # 前馈网络Feed Forward中的隐藏层的大小，也就是第一个全连接层的输出维度
 
         # gnn and lstm
         self.gnn_in_features = 1
         self.gnn_out_features = 16
+        self.gnn_in_timestamps = 128
         # self.lstm_hidden_size = 64
         # self.lstm_out_features = 128
 
@@ -36,8 +49,6 @@ class HAR():
         self.tcn_final_out_channels = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
         self.tcn_input_channels = self.input_channels * self.gnn_out_features
-
-
 
         # classifier and discriminator input = final_out_channels * features_len
         self.final_out_channels = 128
@@ -54,204 +65,172 @@ class HAR():
         self.cnn_kernel_size = 5
 
 
-        self.scenarios = [("15", "19")]
-        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16")]
-        # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"), ("13","19"), ("18", "21"), ("20","6"), ("23", "13"), ("24","12")]
-
-        # self.scenarios = [
-        #     ("1", "2"), ("1", "3"), ("1", "4"), ("1", "5"), ("1", "6"), ("1", "7"), ("1", "8"), ("1", "9"), ("1", "10"),
-        #     ("2", "3"), ("2", "4"), ("2", "5"), ("2", "6"), ("2", "7"), ("2", "8"), ("2", "9"), ("2", "10"),
-        #     ("3", "4"), ("3", "5"), ("3", "6"), ("3", "7"), ("3", "8"), ("3", "9"), ("3", "10"),
-        #     ("4", "5"), ("4", "6"), ("4", "7"), ("4", "8"), ("4", "9"), ("4", "10"),
-        #     ("5", "6"), ("5", "7"), ("5", "8"), ("5", "9"), ("5", "10"),
-        #     ("6", "7"), ("6", "8"), ("6", "9"), ("6", "10"),
-        #     ("7", "8"), ("7", "9"), ("7", "10"),
-        #     ("8", "9"), ("8", "10"),
-        #     ("9", "10")
-        # ]
-
-
-
-        
-        
 class EEG():
     def __init__(self):
-        super(EEG, self).__init__()
+        super().__init__()
 
-        # model transformer
-        self.d_model = 256
-        self.n_heads = 6
-
-        # patchTST
-        self.seq_len = 3000
-        self.e_layers = 6
-        self.d_ff = 256  # 前馈网络中的隐藏层的大小，也就是第一个全连接层的输出维度
-        self.factor = 5
-        self.activation = "relu"
-        self.enc_in = 1
-        self.num_class = 5
-        self.patch_len = 64
-        self.stride = 32
-
-
-
-
-
-        # data parameters
-        self.num_classes = 5
         self.class_names = ['W', 'N1', 'N2', 'N3', 'REM']
+
+        # self.scenarios = []
+        # for i in range(0, 19):
+        #     for j in range(0, 19):
+        #         if i != j:
+        #             self.scenarios.append((str(i), str(j)))
+
+        self.scenarios = [("16", "1")]
+        # self.scenarios = [("0", "11"), ("2", "5"), ("12", "5"), ("7", "18"), ("16", "1"),
+        #                   ("9", "14"), ("4", "12"), ("10", "7"), ("6", "3"), ("8", "10")]
+
+        # base information
         self.sequence_len = 3000
-        self.scenarios = [("0", "11"), ("7", "18"), ("9", "14"), ("12", "5")]
-        # self.scenarios = [("0", "11"), ("7", "18"), ("9", "14"), ("12", "5"), ("16", "1"),
-        #                   ("3", "19"), ("18", "12"), ("13", "17"), ("5", "15"), ("6", "2")]
+        self.num_classes = 5
+        self.input_channels = 1
         self.shuffle = True
         self.drop_last = True
         self.normalize = True
 
-        # model configs
-        self.input_channels = 1
-        self.kernel_size = 25
-        self.stride = 6
-        self.dropout = 0.2
+        # task_fusion
+        self.d_model = 128  # 输入transformer的特征维度
+        self.n_heads = 3  # 有几个head
+        self.e_layers = 1  # block有几层
+        self.factor = 1  # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
+        self.dropout = 0.1
 
-        # features
-        self.mid_channels = 32
-        self.final_out_channels = 128
-        self.features_len = 1
+        # gnn and lstm
+        self.gnn_in_features = 1
+        self.gnn_out_features = 16
+        self.gnn_in_timestamps = 128
 
         # TCN features
-        self.tcn_layers = [32,64]
-        self.tcn_final_out_channles = self.tcn_layers[-1]
-        self.tcn_kernel_size = 15# 25
-        self.tcn_dropout = 0.0
+        self.tcn_layers = [75, 128]
+        self.tcn_final_out_channels = self.tcn_layers[-1]
+        self.tcn_kernel_size = 15
+        self.tcn_input_channels = self.input_channels * self.gnn_out_features
 
-        # lstm features
-        self.lstm_hid = 128
-        self.lstm_n_layers = 1
-        self.lstm_bid = False
-
-        # discriminator
-        self.DSKN_disc_hid = 128
-        self.hidden_dim = 500
+        # classifier and discriminator input = final_out_channels * features_len
+        self.final_out_channels = 128
+        self.label_relation_classifier_input = self.input_channels * self.input_channels
+        self.feature_classifier_input = 128
+        self.features_len = 1
         self.disc_hid_dim = 100
+
+        # CNN features
+        self.cnn_input_channels = 1
+        self.mid_channels = 16
+        self.stride = 6
+        self.cnn_features_len = 1
+        self.cnn_kernel_size = 25
 
 
 class WISDM(object):
     def __init__(self):
-        super(WISDM, self).__init__()
+        super().__init__()
+
         self.class_names = ['walk', 'jog', 'sit', 'stand', 'upstairs', 'downstairs']
+
+        # self.scenarios = []
+        # for i in range(0, 19):
+        #     for j in range(0, 19):
+        #         if i != j:
+        #             self.scenarios.append((str(i), str(j)))
+
+        self.scenarios = [("12", "7")]
+        # self.scenarios = [("2", "32"), ("4", "15"), ("7", "30"), ("12", "17"), ("12", "19"),
+        #                   ("18", "20"), ("20", "30"), ("21", "31"), ("25", "29"), ("26", "2")]
+
+        # base information
         self.sequence_len = 128
-        self.scenarios = [("7", "18"), ("20", "30"), ("35", "31"), ("17", "23"), ("6", "19"),
-                          ("2", "11"), ("33", "12"), ("5", "26"), ("28", "4"), ("23", "32")]
         self.num_classes = 6
+        self.input_channels = 3
         self.shuffle = True
-        self.drop_last = False
+        self.drop_last = True
         self.normalize = True
 
-        # model configs
-        self.input_channels = 3
-        self.kernel_size = 5
-        self.stride = 1
-        self.dropout = 0.5
-        self.num_classes = 6
+        # task_fusion
+        self.d_model = 128  # 输入transformer的特征维度
+        self.n_heads = 3  # 有几个head
+        self.e_layers = 1  # block有几层
+        self.factor = 1  # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
+        self.dropout = 0.1
 
-        # features
-        self.mid_channels = 64
-        self.final_out_channels = 128
-        self.features_len = 1
+        # gnn and lstm
+        self.gnn_in_features = 1
+        self.gnn_out_features = 16
+        self.gnn_in_timestamps = 128
 
         # TCN features
-        self.tcn_layers = [75,150,300]
-        self.tcn_final_out_channles = self.tcn_layers[-1]
+        self.tcn_layers = [75, 128]
+        self.tcn_final_out_channels = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
-        self.tcn_dropout = 0.0
+        self.tcn_input_channels = self.input_channels * self.gnn_out_features
 
-        # lstm features
-        self.lstm_hid = 128
-        self.lstm_n_layers = 1
-        self.lstm_bid = False
-
-        # discriminator
+        # classifier and discriminator input = final_out_channels * features_len
+        self.final_out_channels = 128
+        self.label_relation_classifier_input = self.input_channels * self.input_channels
+        self.feature_classifier_input = 128
+        self.features_len = 1
         self.disc_hid_dim = 64
-        self.DSKN_disc_hid = 128
-        self.hidden_dim = 500
+
+        # CNN features
+        self.cnn_input_channels = 1
+        self.mid_channels = 16
+        self.stride = 1
+        self.cnn_features_len = 1
+        self.cnn_kernel_size = 5
 
 
-class HHAR(object):  ## HHAR dataset, SAMSUNG device.
+class HHAR_SA(object):  ## HHAR dataset, SAMSUNG device.
     def __init__(self):
-        super(HHAR, self).__init__()
-        self.sequence_len = 128
-        self.scenarios = [("0", "6"), ("1", "6"), ("2", "7"), ("3", "8"), ("4", "5"),
-                          ("5", "0"), ("6", "1"), ("7", "4"), ("8", "3"), ("0", "2")]
+        super().__init__()
+
         self.class_names = ['bike', 'sit', 'stand', 'walk', 'stairs_up', 'stairs_down']
+
+        # self.scenarios = []
+        # for i in range(0, 8):
+        #     for j in range(0, 8):
+        #         if i != j:
+        #             self.scenarios.append((str(i), str(j)))
+
+        self.scenarios = [("0", "6")]
+        # self.scenarios = [("0", "2"), ("1", "6"), ("2", "4"), ("4", "0"), ("4", "5"),
+        #                   ("5", "1"), ("5", "2"), ("7", "2"), ("7", "5"), ("8", "4")]
+
+        # base information
+        self.sequence_len = 128
         self.num_classes = 6
-        self.shuffle = True
-        self.drop_last = True
-        self.normalize = True
-
-        # model configs
         self.input_channels = 3
-        self.kernel_size = 5
-        self.stride = 1
-        self.dropout = 0.5
-
-        # features
-        self.mid_channels = 64
-        self.final_out_channels = 128
-        self.features_len = 1
-
-        # TCN features
-        self.tcn_layers = [75,150]
-        self.tcn_final_out_channles = self.tcn_layers[-1]
-        self.tcn_kernel_size = 17
-        self.tcn_dropout = 0.0
-
-        # lstm features
-        self.lstm_hid = 128
-        self.lstm_n_layers = 1
-        self.lstm_bid = False
-
-        # discriminator
-        self.disc_hid_dim = 64
-        self.DSKN_disc_hid = 128
-        self.hidden_dim = 500
-
-        
-        
-class FD(object):
-    def __init__(self):
-        super(FD, self).__init__()
-        self.sequence_len = 5120
-        self.scenarios = [("0", "1"), ("0", "3"), ("1", "0"), ("1", "2"),("1", "3"),
-                          ("2", "1"),("2", "3"),  ("3", "0"), ("3", "1"), ("3", "2")]
-        self.class_names = ['Healthy', 'D1', 'D2']
-        self.num_classes = 3
         self.shuffle = True
         self.drop_last = True
         self.normalize = True
 
-        # Model configs
-        self.input_channels = 1
-        self.kernel_size = 32
-        self.stride = 6
-        self.dropout = 0.5
+        # task_fusion
+        self.d_model = 128  # 输入transformer的特征维度
+        self.n_heads = 3  # 有几个head
+        self.e_layers = 1  # block有几层
+        self.factor = 1  # factor是控制注意力稀疏程度的参数，每间隔factor进行采样
+        self.dropout = 0.1
 
-        self.mid_channels = 64
-        self.final_out_channels = 128
-        self.features_len = 1
+        # gnn and lstm
+        self.gnn_in_features = 1
+        self.gnn_out_features = 16
+        self.gnn_in_timestamps = 128
 
         # TCN features
-        self.tcn_layers = [75, 150]
-        self.tcn_final_out_channles = self.tcn_layers[-1]
+        self.tcn_layers = [64, 128]
+        self.tcn_final_out_channels = self.tcn_layers[-1]
         self.tcn_kernel_size = 17
-        self.tcn_dropout = 0.0
+        self.tcn_input_channels = self.input_channels * self.gnn_out_features
 
-        # lstm features
-        self.lstm_hid = 128
-        self.lstm_n_layers = 1
-        self.lstm_bid = False
-
-        # discriminator
+        # classifier and discriminator input = final_out_channels * features_len
+        self.final_out_channels = 128
+        self.label_relation_classifier_input = self.input_channels * self.input_channels
+        self.feature_classifier_input = 128
+        self.features_len = 1
         self.disc_hid_dim = 64
-        self.DSKN_disc_hid = 128
-        self.hidden_dim = 500
+
+        # CNN features
+        self.cnn_input_channels = 1
+        self.mid_channels = 16
+        self.stride = 1
+        self.cnn_features_len = 1
+        self.cnn_kernel_size = 5

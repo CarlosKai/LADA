@@ -22,7 +22,7 @@ class GradTCN:
             self.gradients = grad_out[0]  # Save the gradients for the batch
 
         self.target_layer.register_forward_hook(forward_hook)
-        self.target_layer.register_backward_hook(backward_hook)
+        self.target_layer.register_full_backward_hook(backward_hook)
 
     def generate_cam(self, input_tensor, target_class):
         # input_tensor.requires_grad = True

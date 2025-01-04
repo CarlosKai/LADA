@@ -4,7 +4,6 @@ import torch
 import torch.nn.functional as F
 from torchmetrics import Accuracy, AUROC, F1Score
 import os
-import wandb
 import pandas as pd
 import numpy as np
 import warnings
@@ -30,7 +29,7 @@ class AbstractTrainer(object):
     def __init__(self, args):
         self.da_method = args.da_method  # Selected  DA Method
         self.dataset = args.dataset  # Selected  Dataset
-        self.backbone = args.backbone
+        # self.backbone = args.backbone
         self.device = torch.device(args.device)  # device
 
         # Exp Description
@@ -68,10 +67,10 @@ class AbstractTrainer(object):
     def initialize_algorithm(self):
         # get algorithm class
         algorithm_class = get_algorithm_class(self.da_method)
-        backbone_fe = get_backbone_class(self.backbone)
+        # backbone_fe = get_backbone_class(self.backbone)
 
         # Initilaize the algorithm
-        self.algorithm = algorithm_class(backbone_fe, self.dataset_configs, self.hparams, self.device)
+        self.algorithm = algorithm_class(self.dataset_configs, self.hparams, self.device)
         self.algorithm.to(self.device)
 
     def load_checkpoint(self, model_dir):

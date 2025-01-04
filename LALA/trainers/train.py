@@ -3,7 +3,7 @@ import sys
 import torch
 import torch.nn.functional as F
 import os
-import wandb
+
 import pandas as pd
 import numpy as np
 import warnings
@@ -27,7 +27,7 @@ class Trainer(AbstractTrainer):
     """
     def __init__(self, args):
         super().__init__(args)
-        self.results_columns = ["scenario", "run", "acc", "f1_score", "auroc"]
+        self.results_columns = ["scenario", "run", "acc", "f1_score"]
 
 
     def fit(self):
@@ -70,7 +70,7 @@ class Trainer(AbstractTrainer):
                 table_results = self.append_results_to_tables(table_results, scenario, run_id, metrics_list)
 
         # Calculate and append mean and std to tables
-        # table_results = self.add_mean_std_table(table_results, self.results_columns)
+        table_results = self.add_mean_std_table(table_results, self.results_columns)
 
         # Save tables to file if needed
         self.save_tables_to_file(table_results, 'results')
@@ -107,10 +107,6 @@ class Trainer(AbstractTrainer):
                 self.algorithm.network.load_state_dict(last_chk)
 
                 metrics = self.algorithm.test_process("-", self.trg_test_dl, self.logger)
-                # metrics_list = [metric.cpu().item() if isinstance(metric, torch.Tensor) else metric for metric in
-                #                 metrics]
-
-                # last_metrics = self.algorithm.test_process(self.hparams['num_epochs'], self.trg_test_dl, self.logger)
                 last_results = self.append_results_to_tables(last_results, f"{src_id}_to_{trg_id}", run_id,
                                                              metrics)
                 
@@ -122,19 +118,18 @@ class Trainer(AbstractTrainer):
                 best_results = self.append_results_to_tables(best_results, f"{src_id}_to_{trg_id}", run_id,
                                                              best_metrics)
 
-        last_scenario_mean_std = last_results.groupby('scenario')[['acc', 'f1_score', 'auroc']].agg(['mean', 'std'])
-        best_scenario_mean_std = best_results.groupby('scenario')[['acc', 'f1_score', 'auroc']].agg(['mean', 'std'])
-
+        last_scenario_mean_std = last_results.groupby('scenario')[['acc', 'f1_score']].agg(['mean', 'std'])
+        best_scenario_mean_std = best_results.groupby('scenario')[['acc', 'f1_score']].agg(['mean', 'std'])
 
         # Save tables to file if needed
         self.save_tables_to_file(last_scenario_mean_std, 'last_results')
         self.save_tables_to_file(best_scenario_mean_std, 'best_results')
 
         # printing summary 
-        summary_last = {metric: np.mean(last_results[metric]) for metric in self.results_columns[2:]}
-        summary_best = {metric: np.mean(best_results[metric]) for metric in self.results_columns[2:]}
-        for summary_name, summary in [('Last', summary_last), ('Best', summary_best)]:
-            for key, val in summary.items():
-                print(f'{summary_name}: {key}\t: {val:2.4f}')
+        # summary_last = {metric: np.mean(last_results[metric]) for metric in self.results_columns[2:]}
+        # summary_best = {metric: np.mean(best_results[metric]) for metric in self.results_columns[2:]}
+        # for summary_name, summary in [('Last', summary_last), ('Best', summary_best)]:
+        #     for key, val in summary.items():
+        #         print(f'{summary_name}: {key}\t: {val:2.4f}')
 
 

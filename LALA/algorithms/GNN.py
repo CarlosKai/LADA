@@ -26,7 +26,7 @@ class GNNLayer(nn.Module):
 class GNNTimeModel(nn.Module):
     def __init__(self, configs):
         super(GNNTimeModel, self).__init__()
-        self.num_time_steps = configs.sequence_len
+        self.num_time_steps = configs.gnn_in_timestamps
         self.num_variables = configs.input_channels
 
         # 单头 GNN 层
@@ -35,13 +35,6 @@ class GNNTimeModel(nn.Module):
         # 可学习邻接矩阵
         self.learnable_adj = nn.Parameter(torch.randn(self.num_time_steps, self.num_variables, self.num_variables))  # 可学习的邻接矩阵
 
-        # LSTM 层
-        # self.lstm = nn.LSTM(input_size=self.num_variables * configs.gnn_out_features,
-        #                     hidden_size=configs.lstm_hidden_size,
-        #                     batch_first=True)
-
-        # 全连接层
-        # self.fc = nn.Linear(configs.lstm_hidden_size, configs.lstm_out_features)
 
     def forward(self, X):
         """
@@ -74,31 +67,4 @@ class GNNTimeModel(nn.Module):
         gnn_outputs = torch.stack(gnn_outputs, dim=1)  # [batch_size, num_time_steps, num_variables, gnn_features]
         gnn_outputs = gnn_outputs.view(batch_size, num_time_steps, -1)  # Flatten nodes
 
-        # LSTM 时间序列建模
-        # lstm_out, _ = self.lstm(gnn_outputs)  # [batch_size, num_time_steps, lstm_hidden_size]
-
-        # 最后时间步的隐藏状态用于预测
-        # output = self.fc(lstm_out[:, -1, :])  # [batch_size, out_features]
         return gnn_outputs
-
-# # 示例用法
-# batch_size = 32
-# num_variables = 9
-# num_time_steps = 128
-# gnn_features = 16
-# lstm_hidden_size = 64
-# out_features = 128
-#
-# # 输入数据
-# X = torch.randn(batch_size, num_variables, num_time_steps)  # [batch_size, num_variables, num_time_steps]
-#
-# # 模型初始化
-# model = GNNTimeModel(num_variables=num_variables,
-#                                 num_time_steps=num_time_steps,
-#                                 gnn_features=gnn_features,
-#                                 lstm_hidden_size=lstm_hidden_size,
-#                                 out_features=out_features)
-#
-# # 前向传播
-# output = model(X)
-# print("Output shape:", output.shape)  # [batch_size, out_features]

@@ -24,7 +24,7 @@ def get_algorithm_class(algorithm_name):
 
 
 class LALA(nn.Module):
-    def __init__(self, backbone, configs, hparams, device):
+    def __init__(self, configs, hparams, device):
         super(LALA, self).__init__()
         # torch.autograd.set_detect_anomaly(True)
         # 通用配置
@@ -84,10 +84,9 @@ class LALA(nn.Module):
         # torchmetrics 指标
         self.ACC = Accuracy(task="multiclass", num_classes=configs.num_classes).to(self.device)
         self.F1 = F1Score(task="multiclass", num_classes=configs.num_classes, average="macro").to(self.device)
-        self.AUROC = AUROC(task="multiclass", num_classes=configs.num_classes)
 
     def test_process(self, loader_name, trg_test_loader, logger):
-        trg_preds_list, trg_labels_list, trg_prob_list = [], [], []
+        trg_preds_list, trg_labels_list = [], []
         with torch.no_grad():
             self.la_cnn.eval()  # Set the model to eval mode
             self.la_taskFusion.eval()
@@ -102,7 +101,6 @@ class LALA(nn.Module):
                 trg_x = data.float().to(self.device)
                 labels = labels.view((-1)).long().to(self.device)
 
-
                 # forward
                 n_vars = data.shape[1]
                 n_batches = data.shape[0]
@@ -112,13 +110,12 @@ class LALA(nn.Module):
                 trg_gnn_feat = self.la_gnn(trg_cnn_last)
                 trg_tcn_feat = self.la_tcn(trg_gnn_feat.permute(0,2,1))
                 predictions = self.la_feature_classifier(trg_tcn_feat)
-                probabilities = torch.softmax(predictions, dim=1)
                 pred = predictions.argmax(dim=1)
 
                 # Collect predictions and labels
                 trg_preds_list.extend(pred.cpu().numpy())
                 trg_labels_list.extend(labels.cpu().numpy())
-                trg_prob_list.extend(probabilities.cpu().numpy())
+
 
         # Switch back to train mode
         self.la_cnn.train()
@@ -132,17 +129,17 @@ class LALA(nn.Module):
         # Calculate Accuracy and F1-score
         trg_labels_list = torch.tensor(trg_labels_list).to(self.device)
         trg_preds_list = torch.tensor(trg_preds_list).to(self.device)
-        trg_prob_list = torch.tensor(np.array(trg_prob_list)).to(self.device)
+
         trg_acc = self.ACC(trg_preds_list, trg_labels_list)
         trg_f1 = self.F1(trg_preds_list, trg_labels_list)
-        trg_auc = self.AUROC(trg_prob_list, trg_labels_list)
+
 
         # Log the metrics
         logger.debug(f'{loader_name} Accuracy: {trg_acc:.4f}')
         logger.debug(f'{loader_name} F1-Score: {trg_acc:.4f}')
 
 
-        return trg_acc, trg_f1, trg_auc
+        return trg_acc, trg_f1
 
 
     def update(self, src_train_loader, src_test_loader, trg_train_loader, trg_test_loader, avg_meter, logger):
@@ -160,7 +157,7 @@ class LALA(nn.Module):
             if (epoch + 1) % 5 == 0:
                 _ = self.test_process("Source Domain Train", src_train_loader, logger)
                 _ = self.test_process("Target Domain Train", trg_train_loader, logger)
-                tmp_trg_risk, _, _ = self.test_process("Target Domain Test", trg_test_loader, logger)
+                tmp_trg_risk, _ = self.test_process("Target Domain Test", trg_test_loader, logger)
                 if tmp_trg_risk > best_trg_risk:
                     best_trg_risk = tmp_trg_risk
                     best_model = deepcopy(self.network.state_dict())

@@ -1,16 +1,12 @@
-import pandas as pd
+import torch
 
-file_path = 'Heartbeat_TEST.ts'
+file_path = '../../data/WISDM/train_1.pt'
 
-# 尝试读取文件并指定分隔符
+# 尝试加载 PyTorch 的 .pt 文件
 try:
-    # 如果文件是制表符分隔（.tsv 文件）
-    df = pd.read_csv(file_path, sep='\t')
-
-    # 如果文件是逗号分隔（.csv 文件）
-    # df = pd.read_csv(file_path)
-
-    print(df.head())  # 打印前几行
-    print(df.info())  # 查看数据的信息
+    data = torch.load(file_path)  # 加载文件
+    print(type(data))  # 检查数据类型
+    print(data['samples'].shape)  # 打印数据内容
+    print(data['labels'].shape)
 except Exception as e:
     print(f"Error reading the file: {e}")
