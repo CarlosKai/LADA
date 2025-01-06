@@ -1,13 +1,8 @@
 import sys
 
 import torch
-import torch.nn.functional as F
 import os
-
 import pandas as pd
-import numpy as np
-import warnings
-import sklearn.exceptions
 import collections
 import argparse
 import warnings
@@ -125,11 +120,6 @@ class Trainer(AbstractTrainer):
         self.save_tables_to_file(last_scenario_mean_std, 'last_results')
         self.save_tables_to_file(best_scenario_mean_std, 'best_results')
 
-        # printing summary 
-        # summary_last = {metric: np.mean(last_results[metric]) for metric in self.results_columns[2:]}
-        # summary_best = {metric: np.mean(best_results[metric]) for metric in self.results_columns[2:]}
-        # for summary_name, summary in [('Last', summary_last), ('Best', summary_best)]:
-        #     for key, val in summary.items():
-        #         print(f'{summary_name}: {key}\t: {val:2.4f}')
+
 
 

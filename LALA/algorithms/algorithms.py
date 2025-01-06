@@ -9,11 +9,10 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 from torchmetrics import Accuracy, F1Score, AUROC
-from .TaskFusion import TaskFusion
-from .backbone import *
-from .GNN import GNNTimeModel
-from .Grad_TCN import GradTCN
-
+from TaskFusion import TaskFusion
+from backbone import *
+from GNN import GNNTimeModel
+from Grad_TCN import GradTCN
 
 
 def get_algorithm_class(algorithm_name):
@@ -74,8 +73,6 @@ class LALA(nn.Module):
         self.lr_scheduler1 = StepLR(self.optimizer1, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
         self.lr_scheduler2 = StepLR(self.optimizer2, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
         self.lr_scheduler3 = StepLR(self.optimizer3, step_size=hparams['step_size'], gamma=hparams['lr_decay'])
-
-        # self.network = nn.Sequential(self.la_tcn, self.la_taskFusion, self.la_classifier, self.domain_classifier)
 
         # 损失函数
         self.cross_entropy = nn.CrossEntropyLoss()
@@ -246,10 +243,6 @@ class LALA(nn.Module):
             loss_inst = self.instance_contrastive_loss_v3(src_tcn_feat, src_f_pos, [trg_f_pos, trg_f_neg])
             # contrast_loss = loss_inst + loss_indi
             contrast_loss =  loss_inst * self.hparams["contrast_inst_loss_wt"]  + loss_indi * self.hparams["contrast_indi_loss_wt"]
-            # if epoch < 50:
-            #     contrast_loss = loss_inst  # 只优化跨域损失
-            # else:
-            #     contrast_loss = loss_inst + loss_indi  # 同时优化内部损失
 
             src_cls_loss = self.cross_entropy(src_final_pred, src_y)
             trg_cls_loss = self.cross_entropy(trg_final_pred, trg_y)
@@ -344,14 +337,11 @@ class LALA(nn.Module):
         """
         # 计算正样本对相似度
         sim_pos = F.cosine_similarity(z1.unsqueeze(1), z2.unsqueeze(1), dim=1)  # shape: (batch_size, time_steps)
-
         # 计算负样本对相似度
         sim_neg_list = [F.cosine_similarity(z1.unsqueeze(1), neg.unsqueeze(1), dim=1) for neg in negatives]
         sim_neg = torch.stack(sim_neg_list, dim=0)  # shape: (num_negatives, batch_size, time_steps)
-
         # 计算分母：正样本和所有负样本相似度的指数和
         denominator = torch.exp(sim_pos) + torch.sum(torch.exp(sim_neg), dim=0)  # shape: (batch_size, time_steps)
-
         # 计算对比损失
         loss = -torch.log(torch.exp(sim_pos) / denominator)  # shape: (batch_size, time_steps)
         loss = loss.mean()  # 对时间步和 batch 平均
