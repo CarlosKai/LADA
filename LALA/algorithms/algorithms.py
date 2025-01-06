@@ -9,10 +9,10 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 from torchmetrics import Accuracy, F1Score, AUROC
-from TaskFusion import TaskFusion
-from backbone import *
-from GNN import GNNTimeModel
-from Grad_TCN import GradTCN
+from .TaskFusion import TaskFusion
+from .backbone import *
+from .GNN import GNNTimeModel
+from .Grad_TCN import GradTCN
 
 
 def get_algorithm_class(algorithm_name):
@@ -30,6 +30,7 @@ class LALA(nn.Module):
         self.configs = configs
         self.hparams = hparams
         self.device = device
+        self.dataset_name = configs.dataset_name
 
         # 构建模型
         self.la_cnn = CNN(configs)
@@ -286,6 +287,26 @@ class LALA(nn.Module):
             #           'Domain_loss': domain_loss.item(),
             #           'Src_task_loss': src_task_loss.item(), 'class_feature_and_domain_loss': loss1.item(),
             #           'Total_loss': loss2.item()}
+
+            if self.configs.dataset_name == "EEG":
+                self.optimizer1.zero_grad()
+                self.optimizer2.zero_grad()
+                self.optimizer3.zero_grad()
+                loss2 = self.hparams["src_cls_loss_wt"] * src_cls_loss + \
+                        self.hparams["domain_loss_wt"] * domain_loss + self.hparams[
+                            "dual_contrastive_loss_wt"] * contrast_loss
+                loss2.backward()
+                self.optimizer3.step()
+                self.optimizer_disc.step()
+                self.optimizer1.step()
+                self.optimizer2.step()
+                losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss': trg_cls_loss.item(),
+                          'Domain_loss': domain_loss.item(),
+                          'Contrast_loss': contrast_loss.item(), 'Contrast_loss_inst': loss_inst.item(),
+                          'Contrast_loss_indi': loss_indi.item(), }
+                for key, val in losses.items():
+                    avg_meter[key].update(val, 32)
+                continue
 
             #加入目标域mmd损失的情况
             loss1 = src_task_loss + trg_mmd_loss

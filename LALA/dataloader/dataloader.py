@@ -103,27 +103,27 @@ def data_generator_old(data_path, domain_id, dataset_configs, hparams):
 
 
 
-def few_shot_data_generator(data_loader, dataset_configs, num_samples=5):
-    x_data = data_loader.dataset.x_data
-    y_data = data_loader.dataset.y_data
-
-    NUM_SAMPLES_PER_CLASS = num_samples
-    NUM_CLASSES = len(torch.unique(y_data))
-
-    counts = [y_data.eq(i).sum().item() for i in range(NUM_CLASSES)]
-    samples_count_dict = {i: min(counts[i], NUM_SAMPLES_PER_CLASS) for i in range(NUM_CLASSES)}
-
-    samples_ids = {i: torch.where(y_data == i)[0] for i in range(NUM_CLASSES)}
-    selected_ids = {i: torch.randperm(samples_ids[i].size(0))[:samples_count_dict[i]] for i in range(NUM_CLASSES)}
-
-    selected_x = torch.cat([x_data[samples_ids[i][selected_ids[i]]] for i in range(NUM_CLASSES)], dim=0)
-    selected_y = torch.cat([y_data[samples_ids[i][selected_ids[i]]] for i in range(NUM_CLASSES)], dim=0)
-
-    few_shot_dataset = {"samples": selected_x, "labels": selected_y}
-    few_shot_dataset = Load_Dataset(few_shot_dataset, dataset_configs)
-
-    few_shot_loader = torch.utils.data.DataLoader(dataset=few_shot_dataset, batch_size=len(few_shot_dataset),
-                                                  shuffle=False, drop_last=False, num_workers=0)
-
-    return few_shot_loader
+# def few_shot_data_generator(data_loader, dataset_configs, num_samples=5):
+#     x_data = data_loader.dataset.x_data
+#     y_data = data_loader.dataset.y_data
+#
+#     NUM_SAMPLES_PER_CLASS = num_samples
+#     NUM_CLASSES = len(torch.unique(y_data))
+#
+#     counts = [y_data.eq(i).sum().item() for i in range(NUM_CLASSES)]
+#     samples_count_dict = {i: min(counts[i], NUM_SAMPLES_PER_CLASS) for i in range(NUM_CLASSES)}
+#
+#     samples_ids = {i: torch.where(y_data == i)[0] for i in range(NUM_CLASSES)}
+#     selected_ids = {i: torch.randperm(samples_ids[i].size(0))[:samples_count_dict[i]] for i in range(NUM_CLASSES)}
+#
+#     selected_x = torch.cat([x_data[samples_ids[i][selected_ids[i]]] for i in range(NUM_CLASSES)], dim=0)
+#     selected_y = torch.cat([y_data[samples_ids[i][selected_ids[i]]] for i in range(NUM_CLASSES)], dim=0)
+#
+#     few_shot_dataset = {"samples": selected_x, "labels": selected_y}
+#     few_shot_dataset = Load_Dataset(few_shot_dataset, dataset_configs)
+#
+#     few_shot_loader = torch.utils.data.DataLoader(dataset=few_shot_dataset, batch_size=len(few_shot_dataset),
+#                                                   shuffle=False, drop_last=False, num_workers=0)
+#
+#     return few_shot_loader
 

@@ -8,7 +8,7 @@ def get_dataset_class(dataset_name):
 class HAR():
     def __init__(self):
         super().__init__()
-
+        self.dataset_name = 'HAR'
         self.class_names = ['walk', 'upstairs', 'downstairs', 'sit', 'stand', 'lie']
 
         # self.scenarios = []
@@ -68,7 +68,7 @@ class HAR():
 class EEG():
     def __init__(self):
         super().__init__()
-
+        self.dataset_name = 'EEG'
         self.class_names = ['W', 'N1', 'N2', 'N3', 'REM']
 
         # self.scenarios = []
@@ -125,7 +125,7 @@ class EEG():
 class WISDM(object):
     def __init__(self):
         super().__init__()
-
+        self.dataset_name = 'WISDM'
         self.class_names = ['walk', 'jog', 'sit', 'stand', 'upstairs', 'downstairs']
 
         # self.scenarios = []
@@ -182,7 +182,7 @@ class WISDM(object):
 class HHAR_SA(object):  ## HHAR dataset, SAMSUNG device.
     def __init__(self):
         super().__init__()
-
+        self.dataset_name = 'HHAR_SA'
         self.class_names = ['bike', 'sit', 'stand', 'walk', 'stairs_up', 'stairs_down']
 
         # self.scenarios = []

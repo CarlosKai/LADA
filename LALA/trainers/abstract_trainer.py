@@ -11,7 +11,7 @@ import sklearn.exceptions
 import collections
 
 from torchmetrics import Accuracy, AUROC, F1Score
-from dataloader.dataloader import data_generator, few_shot_data_generator
+from dataloader.dataloader import data_generator
 from configs.data_model_configs import get_dataset_class
 from configs.hparams import get_hparams_class
 from utils import fix_randomness, starting_logs, DictAsObject,AverageMeter
@@ -106,8 +106,8 @@ class AbstractTrainer(object):
         self.trg_train_dl = data_generator(self.data_path, trg_id, self.dataset_configs, self.hparams, "train")
         self.trg_test_dl = data_generator(self.data_path, trg_id, self.dataset_configs, self.hparams, "test")
 
-        self.few_shot_dl_5 = few_shot_data_generator(self.trg_test_dl, self.dataset_configs,
-                                                     5)  # set 5 to other value if you want other k-shot FST
+        # self.few_shot_dl_5 = few_shot_data_generator(self.trg_test_dl, self.dataset_configs,
+        #                                              5)  # set 5 to other value if you want other k-shot FST
 
     def create_save_dir(self, save_dir):
         if not os.path.exists(save_dir):

@@ -33,8 +33,8 @@ class HAR():
             }
         }
         self.ablation_params = {
-            'label_distribution_align': True,
-            'task_relation_classify': True,
+            'label_distribution_align': False,
+            'task_relation_classify': False,
             'label_attentive_align': True,
             'dual_contrastive_inst_loss': True,
             'dual_contrastive_indi_grad_cam_loss': True
@@ -45,7 +45,7 @@ class EEG():
     def __init__(self):
         super().__init__()
         self.train_params = {
-            'num_epochs': 100,
+            'num_epochs': 2,
             'batch_size': 128,
             'weight_decay': 1e-4,
             'step_size': 50,
