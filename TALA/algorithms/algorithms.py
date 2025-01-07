@@ -24,7 +24,7 @@ def get_algorithm_class(algorithm_name):
 
 class TALA(nn.Module):
     def __init__(self, configs, hparams, device):
-        super(LALA, self).__init__()
+        super(TALA, self).__init__()
         # torch.autograd.set_detect_anomaly(True)
         # 通用配置
         self.configs = configs
@@ -386,6 +386,7 @@ class TALA(nn.Module):
         masked_irrelated_outputs = self.la_feature_classifier(masked_irrelated_outputs)
         self.la_tcn.train()
         self.la_feature_classifier.train()
+        self.optimizer3.zero_grad()
         return masked_irrelated_outputs, masked_related_outputs
 
 

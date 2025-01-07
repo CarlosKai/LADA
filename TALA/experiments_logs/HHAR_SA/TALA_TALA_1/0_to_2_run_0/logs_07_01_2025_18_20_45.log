@@ -1,0 +1,628 @@
+=============================================
+Dataset: HHAR_SA
+Method:  TALA
+=============================================
+Source: 0 ---> Target: 2
+Run ID: 0
+=============================================
+[Epoch : 1/100]
+Src_cls_loss	: 0.7997
+Trg_cls_loss	: 1.1835
+Domain_loss	: 0.9708
+Src_task_loss	: 1.7565
+class_feature_and_domain_loss	: 4.4942
+Trg_MMD_loss	: 2.7377
+Contrast_loss	: 0.5788
+Contrast_loss_inst	: 1.1576
+Total_loss	: 7.0643
+-------------------------------------
+[Epoch : 2/100]
+Src_cls_loss	: 0.5748
+Trg_cls_loss	: 1.1778
+Domain_loss	: 1.0457
+Src_task_loss	: 1.6756
+class_feature_and_domain_loss	: 4.2894
+Trg_MMD_loss	: 2.6138
+Contrast_loss	: 0.5457
+Contrast_loss_inst	: 1.0913
+Total_loss	: 6.4846
+-------------------------------------
+[Epoch : 3/100]
+Src_cls_loss	: 0.4597
+Trg_cls_loss	: 1.2374
+Domain_loss	: 1.1264
+Src_task_loss	: 1.6188
+class_feature_and_domain_loss	: 4.1977
+Trg_MMD_loss	: 2.5789
+Contrast_loss	: 0.5338
+Contrast_loss_inst	: 1.0676
+Total_loss	: 6.2435
+-------------------------------------
+[Epoch : 4/100]
+Source Domain Train Accuracy: 0.9574
+Source Domain Train F1-Score: 0.9574
+Target Domain Train Accuracy: 0.6535
+Target Domain Train F1-Score: 0.6535
+Target Domain Test Accuracy: 0.6758
+Target Domain Test F1-Score: 0.6758
+Src_cls_loss	: 0.3922
+Trg_cls_loss	: 1.2958
+Domain_loss	: 1.1724
+Src_task_loss	: 1.5688
+class_feature_and_domain_loss	: 4.1074
+Trg_MMD_loss	: 2.5387
+Contrast_loss	: 0.5284
+Contrast_loss_inst	: 1.0569
+Total_loss	: 6.0641
+-------------------------------------
+[Epoch : 5/100]
+Src_cls_loss	: 0.3426
+Trg_cls_loss	: 1.1902
+Domain_loss	: 1.2053
+Src_task_loss	: 1.5221
+class_feature_and_domain_loss	: 4.0124
+Trg_MMD_loss	: 2.4903
+Contrast_loss	: 0.5256
+Contrast_loss_inst	: 1.0512
+Total_loss	: 5.9029
+-------------------------------------
+[Epoch : 6/100]
+Src_cls_loss	: 0.3123
+Trg_cls_loss	: 1.1843
+Domain_loss	: 1.2209
+Src_task_loss	: 1.4761
+class_feature_and_domain_loss	: 3.9441
+Trg_MMD_loss	: 2.4679
+Contrast_loss	: 0.5238
+Contrast_loss_inst	: 1.0477
+Total_loss	: 5.7896
+-------------------------------------
+[Epoch : 7/100]
+Src_cls_loss	: 0.2854
+Trg_cls_loss	: 1.1820
+Domain_loss	: 1.2461
+Src_task_loss	: 1.4306
+class_feature_and_domain_loss	: 3.8635
+Trg_MMD_loss	: 2.4329
+Contrast_loss	: 0.5227
+Contrast_loss_inst	: 1.0455
+Total_loss	: 5.6804
+-------------------------------------
+[Epoch : 8/100]
+Src_cls_loss	: 0.2638
+Trg_cls_loss	: 1.1862
+Domain_loss	: 1.2496
+Src_task_loss	: 1.3875
+class_feature_and_domain_loss	: 3.8005
+Trg_MMD_loss	: 2.4130
+Contrast_loss	: 0.5221
+Contrast_loss_inst	: 1.0441
+Total_loss	: 5.5775
+-------------------------------------
+[Epoch : 9/100]
+Source Domain Train Accuracy: 0.9820
+Source Domain Train F1-Score: 0.9820
+Target Domain Train Accuracy: 0.7261
+Target Domain Train F1-Score: 0.7261
+Target Domain Test Accuracy: 0.7368
+Target Domain Test F1-Score: 0.7368
+Src_cls_loss	: 0.2461
+Trg_cls_loss	: 1.1611
+Domain_loss	: 1.2676
+Src_task_loss	: 1.3466
+class_feature_and_domain_loss	: 3.7257
+Trg_MMD_loss	: 2.3791
+Contrast_loss	: 0.5215
+Contrast_loss_inst	: 1.0431
+Total_loss	: 5.4855
+-------------------------------------
+[Epoch : 10/100]
+Src_cls_loss	: 0.2306
+Trg_cls_loss	: 1.1844
+Domain_loss	: 1.2789
+Src_task_loss	: 1.3092
+class_feature_and_domain_loss	: 3.6929
+Trg_MMD_loss	: 2.3837
+Contrast_loss	: 0.5211
+Contrast_loss_inst	: 1.0421
+Total_loss	: 5.4331
+-------------------------------------
+[Epoch : 11/100]
+Src_cls_loss	: 0.2175
+Trg_cls_loss	: 1.2083
+Domain_loss	: 1.2856
+Src_task_loss	: 1.2725
+class_feature_and_domain_loss	: 3.6403
+Trg_MMD_loss	: 2.3678
+Contrast_loss	: 0.5206
+Contrast_loss_inst	: 1.0411
+Total_loss	: 5.3609
+-------------------------------------
+[Epoch : 12/100]
+Src_cls_loss	: 0.2081
+Trg_cls_loss	: 1.1737
+Domain_loss	: 1.2904
+Src_task_loss	: 1.2377
+class_feature_and_domain_loss	: 3.5642
+Trg_MMD_loss	: 2.3265
+Contrast_loss	: 0.5202
+Contrast_loss_inst	: 1.0403
+Total_loss	: 5.2707
+-------------------------------------
+[Epoch : 13/100]
+Src_cls_loss	: 0.1967
+Trg_cls_loss	: 1.1655
+Domain_loss	: 1.2975
+Src_task_loss	: 1.2055
+class_feature_and_domain_loss	: 3.5060
+Trg_MMD_loss	: 2.3006
+Contrast_loss	: 0.5199
+Contrast_loss_inst	: 1.0399
+Total_loss	: 5.1969
+-------------------------------------
+[Epoch : 14/100]
+Source Domain Train Accuracy: 0.9905
+Source Domain Train F1-Score: 0.9905
+Target Domain Train Accuracy: 0.7776
+Target Domain Train F1-Score: 0.7776
+Target Domain Test Accuracy: 0.7979
+Target Domain Test F1-Score: 0.7979
+Src_cls_loss	: 0.1871
+Trg_cls_loss	: 1.1464
+Domain_loss	: 1.3010
+Src_task_loss	: 1.1748
+class_feature_and_domain_loss	: 3.4497
+Trg_MMD_loss	: 2.2750
+Contrast_loss	: 0.5198
+Contrast_loss_inst	: 1.0397
+Total_loss	: 5.1250
+-------------------------------------
+[Epoch : 15/100]
+Src_cls_loss	: 0.1794
+Trg_cls_loss	: 1.1490
+Domain_loss	: 1.3052
+Src_task_loss	: 1.1467
+class_feature_and_domain_loss	: 3.4149
+Trg_MMD_loss	: 2.2681
+Contrast_loss	: 0.5199
+Contrast_loss_inst	: 1.0397
+Total_loss	: 5.0790
+-------------------------------------
+[Epoch : 16/100]
+Src_cls_loss	: 0.1714
+Trg_cls_loss	: 1.1361
+Domain_loss	: 1.3066
+Src_task_loss	: 1.1197
+class_feature_and_domain_loss	: 3.3735
+Trg_MMD_loss	: 2.2538
+Contrast_loss	: 0.5199
+Contrast_loss_inst	: 1.0399
+Total_loss	: 5.0229
+-------------------------------------
+[Epoch : 17/100]
+Src_cls_loss	: 0.1671
+Trg_cls_loss	: 1.1273
+Domain_loss	: 1.3095
+Src_task_loss	: 1.0945
+class_feature_and_domain_loss	: 3.3193
+Trg_MMD_loss	: 2.2248
+Contrast_loss	: 0.5201
+Contrast_loss_inst	: 1.0402
+Total_loss	: 4.9630
+-------------------------------------
+[Epoch : 18/100]
+Src_cls_loss	: 0.1605
+Trg_cls_loss	: 1.1349
+Domain_loss	: 1.3117
+Src_task_loss	: 1.0694
+class_feature_and_domain_loss	: 3.2818
+Trg_MMD_loss	: 2.2124
+Contrast_loss	: 0.5202
+Contrast_loss_inst	: 1.0403
+Total_loss	: 4.9145
+-------------------------------------
+[Epoch : 19/100]
+Source Domain Train Accuracy: 0.9896
+Source Domain Train F1-Score: 0.9896
+Target Domain Train Accuracy: 0.8006
+Target Domain Train F1-Score: 0.8006
+Target Domain Test Accuracy: 0.8042
+Target Domain Test F1-Score: 0.8042
+Src_cls_loss	: 0.1549
+Trg_cls_loss	: 1.1727
+Domain_loss	: 1.3120
+Src_task_loss	: 1.0448
+class_feature_and_domain_loss	: 3.2432
+Trg_MMD_loss	: 2.1984
+Contrast_loss	: 0.5204
+Contrast_loss_inst	: 1.0408
+Total_loss	: 4.8649
+-------------------------------------
+[Epoch : 20/100]
+Src_cls_loss	: 0.1489
+Trg_cls_loss	: 1.1773
+Domain_loss	: 1.3144
+Src_task_loss	: 1.0217
+class_feature_and_domain_loss	: 3.1983
+Trg_MMD_loss	: 2.1765
+Contrast_loss	: 0.5207
+Contrast_loss_inst	: 1.0414
+Total_loss	: 4.8106
+-------------------------------------
+[Epoch : 21/100]
+Src_cls_loss	: 0.1437
+Trg_cls_loss	: 1.1807
+Domain_loss	: 1.3168
+Src_task_loss	: 0.9992
+class_feature_and_domain_loss	: 3.1607
+Trg_MMD_loss	: 2.1614
+Contrast_loss	: 0.5209
+Contrast_loss_inst	: 1.0419
+Total_loss	: 4.7649
+-------------------------------------
+[Epoch : 22/100]
+Src_cls_loss	: 0.1401
+Trg_cls_loss	: 1.1786
+Domain_loss	: 1.3196
+Src_task_loss	: 0.9782
+class_feature_and_domain_loss	: 3.1191
+Trg_MMD_loss	: 2.1409
+Contrast_loss	: 0.5212
+Contrast_loss_inst	: 1.0424
+Total_loss	: 4.7189
+-------------------------------------
+[Epoch : 23/100]
+Src_cls_loss	: 0.1361
+Trg_cls_loss	: 1.1861
+Domain_loss	: 1.3209
+Src_task_loss	: 0.9592
+class_feature_and_domain_loss	: 3.0849
+Trg_MMD_loss	: 2.1258
+Contrast_loss	: 0.5215
+Contrast_loss_inst	: 1.0429
+Total_loss	: 4.6780
+-------------------------------------
+[Epoch : 24/100]
+Source Domain Train Accuracy: 0.9716
+Source Domain Train F1-Score: 0.9716
+Target Domain Train Accuracy: 0.8006
+Target Domain Train F1-Score: 0.8006
+Target Domain Test Accuracy: 0.8211
+Target Domain Test F1-Score: 0.8211
+Src_cls_loss	: 0.1325
+Trg_cls_loss	: 1.1907
+Domain_loss	: 1.3218
+Src_task_loss	: 0.9399
+class_feature_and_domain_loss	: 3.0586
+Trg_MMD_loss	: 2.1187
+Contrast_loss	: 0.5217
+Contrast_loss_inst	: 1.0433
+Total_loss	: 4.6453
+-------------------------------------
+[Epoch : 25/100]
+Src_cls_loss	: 0.1286
+Trg_cls_loss	: 1.1899
+Domain_loss	: 1.3224
+Src_task_loss	: 0.9218
+class_feature_and_domain_loss	: 3.0236
+Trg_MMD_loss	: 2.1018
+Contrast_loss	: 0.5219
+Contrast_loss_inst	: 1.0438
+Total_loss	: 4.6031
+-------------------------------------
+[Epoch : 26/100]
+Src_cls_loss	: 0.1247
+Trg_cls_loss	: 1.1899
+Domain_loss	: 1.3246
+Src_task_loss	: 0.9038
+class_feature_and_domain_loss	: 2.9943
+Trg_MMD_loss	: 2.0905
+Contrast_loss	: 0.5221
+Contrast_loss_inst	: 1.0442
+Total_loss	: 4.5683
+-------------------------------------
+[Epoch : 27/100]
+Src_cls_loss	: 0.1215
+Trg_cls_loss	: 1.1998
+Domain_loss	: 1.3256
+Src_task_loss	: 0.8875
+class_feature_and_domain_loss	: 2.9675
+Trg_MMD_loss	: 2.0800
+Contrast_loss	: 0.5224
+Contrast_loss_inst	: 1.0447
+Total_loss	: 4.5362
+-------------------------------------
+[Epoch : 28/100]
+Src_cls_loss	: 0.1184
+Trg_cls_loss	: 1.2113
+Domain_loss	: 1.3266
+Src_task_loss	: 0.8711
+class_feature_and_domain_loss	: 2.9406
+Trg_MMD_loss	: 2.0695
+Contrast_loss	: 0.5225
+Contrast_loss_inst	: 1.0451
+Total_loss	: 4.5040
+-------------------------------------
+[Epoch : 29/100]
+Source Domain Train Accuracy: 0.9896
+Source Domain Train F1-Score: 0.9896
+Target Domain Train Accuracy: 0.8042
+Target Domain Train F1-Score: 0.8042
+Target Domain Test Accuracy: 0.8042
+Target Domain Test F1-Score: 0.8042
+Src_cls_loss	: 0.1160
+Trg_cls_loss	: 1.2453
+Domain_loss	: 1.3270
+Src_task_loss	: 0.8556
+class_feature_and_domain_loss	: 2.9196
+Trg_MMD_loss	: 2.0640
+Contrast_loss	: 0.5227
+Contrast_loss_inst	: 1.0454
+Total_loss	: 4.4786
+-------------------------------------
+[Epoch : 30/100]
+Src_cls_loss	: 0.1133
+Trg_cls_loss	: 1.2651
+Domain_loss	: 1.3284
+Src_task_loss	: 0.8400
+class_feature_and_domain_loss	: 2.8969
+Trg_MMD_loss	: 2.0569
+Contrast_loss	: 0.5228
+Contrast_loss_inst	: 1.0456
+Total_loss	: 4.4519
+-------------------------------------
+[Epoch : 31/100]
+Src_cls_loss	: 0.1112
+Trg_cls_loss	: 1.2679
+Domain_loss	: 1.3276
+Src_task_loss	: 0.8261
+class_feature_and_domain_loss	: 2.8635
+Trg_MMD_loss	: 2.0374
+Contrast_loss	: 0.5230
+Contrast_loss_inst	: 1.0460
+Total_loss	: 4.4134
+-------------------------------------
+[Epoch : 32/100]
+Src_cls_loss	: 0.1103
+Trg_cls_loss	: 1.2753
+Domain_loss	: 1.3283
+Src_task_loss	: 0.8120
+class_feature_and_domain_loss	: 2.8388
+Trg_MMD_loss	: 2.0268
+Contrast_loss	: 0.5233
+Contrast_loss_inst	: 1.0466
+Total_loss	: 4.3878
+-------------------------------------
+[Epoch : 33/100]
+Src_cls_loss	: 0.1078
+Trg_cls_loss	: 1.2834
+Domain_loss	: 1.3293
+Src_task_loss	: 0.7986
+class_feature_and_domain_loss	: 2.8205
+Trg_MMD_loss	: 2.0219
+Contrast_loss	: 0.5235
+Contrast_loss_inst	: 1.0470
+Total_loss	: 4.3654
+-------------------------------------
+[Epoch : 34/100]
+Source Domain Train Accuracy: 0.9706
+Source Domain Train F1-Score: 0.9706
+Target Domain Train Accuracy: 0.7408
+Target Domain Train F1-Score: 0.7408
+Target Domain Test Accuracy: 0.7516
+Target Domain Test F1-Score: 0.7516
+Src_cls_loss	: 0.1058
+Trg_cls_loss	: 1.2975
+Domain_loss	: 1.3299
+Src_task_loss	: 0.7856
+class_feature_and_domain_loss	: 2.8011
+Trg_MMD_loss	: 2.0155
+Contrast_loss	: 0.5237
+Contrast_loss_inst	: 1.0475
+Total_loss	: 4.3426
+-------------------------------------
+[Epoch : 35/100]
+Src_cls_loss	: 0.1044
+Trg_cls_loss	: 1.3019
+Domain_loss	: 1.3312
+Src_task_loss	: 0.7729
+class_feature_and_domain_loss	: 2.7816
+Trg_MMD_loss	: 2.0087
+Contrast_loss	: 0.5240
+Contrast_loss_inst	: 1.0479
+Total_loss	: 4.3216
+-------------------------------------
+[Epoch : 36/100]
+Src_cls_loss	: 0.1021
+Trg_cls_loss	: 1.3100
+Domain_loss	: 1.3319
+Src_task_loss	: 0.7604
+class_feature_and_domain_loss	: 2.7608
+Trg_MMD_loss	: 2.0003
+Contrast_loss	: 0.5242
+Contrast_loss_inst	: 1.0483
+Total_loss	: 4.2969
+-------------------------------------
+[Epoch : 37/100]
+Src_cls_loss	: 0.1002
+Trg_cls_loss	: 1.3191
+Domain_loss	: 1.3322
+Src_task_loss	: 0.7485
+class_feature_and_domain_loss	: 2.7440
+Trg_MMD_loss	: 1.9954
+Contrast_loss	: 0.5243
+Contrast_loss_inst	: 1.0487
+Total_loss	: 4.2767
+-------------------------------------
+[Epoch : 38/100]
+Src_cls_loss	: 0.0984
+Trg_cls_loss	: 1.3330
+Domain_loss	: 1.3321
+Src_task_loss	: 0.7369
+class_feature_and_domain_loss	: 2.7243
+Trg_MMD_loss	: 1.9873
+Contrast_loss	: 0.5245
+Contrast_loss_inst	: 1.0491
+Total_loss	: 4.2531
+-------------------------------------
+[Epoch : 39/100]
+Source Domain Train Accuracy: 0.9991
+Source Domain Train F1-Score: 0.9991
+Target Domain Train Accuracy: 0.8079
+Target Domain Train F1-Score: 0.8079
+Target Domain Test Accuracy: 0.8105
+Target Domain Test F1-Score: 0.8105
+Src_cls_loss	: 0.0962
+Trg_cls_loss	: 1.3478
+Domain_loss	: 1.3327
+Src_task_loss	: 0.7258
+class_feature_and_domain_loss	: 2.7053
+Trg_MMD_loss	: 1.9795
+Contrast_loss	: 0.5248
+Contrast_loss_inst	: 1.0495
+Total_loss	: 4.2305
+-------------------------------------
+[Epoch : 40/100]
+Src_cls_loss	: 0.0942
+Trg_cls_loss	: 1.3671
+Domain_loss	: 1.3331
+Src_task_loss	: 0.7149
+class_feature_and_domain_loss	: 2.6880
+Trg_MMD_loss	: 1.9731
+Contrast_loss	: 0.5249
+Contrast_loss_inst	: 1.0499
+Total_loss	: 4.2095
+-------------------------------------
+[Epoch : 41/100]
+Src_cls_loss	: 0.0922
+Trg_cls_loss	: 1.3777
+Domain_loss	: 1.3341
+Src_task_loss	: 0.7044
+class_feature_and_domain_loss	: 2.6681
+Trg_MMD_loss	: 1.9637
+Contrast_loss	: 0.5251
+Contrast_loss_inst	: 1.0502
+Total_loss	: 4.1866
+-------------------------------------
+[Epoch : 42/100]
+Src_cls_loss	: 0.0910
+Trg_cls_loss	: 1.4028
+Domain_loss	: 1.3340
+Src_task_loss	: 0.6941
+class_feature_and_domain_loss	: 2.6514
+Trg_MMD_loss	: 1.9573
+Contrast_loss	: 0.5253
+Contrast_loss_inst	: 1.0505
+Total_loss	: 4.1675
+-------------------------------------
+[Epoch : 43/100]
+Src_cls_loss	: 0.0895
+Trg_cls_loss	: 1.4199
+Domain_loss	: 1.3352
+Src_task_loss	: 0.6843
+class_feature_and_domain_loss	: 2.6378
+Trg_MMD_loss	: 1.9536
+Contrast_loss	: 0.5255
+Contrast_loss_inst	: 1.0509
+Total_loss	: 4.1521
+-------------------------------------
+[Epoch : 44/100]
+Source Domain Train Accuracy: 0.9991
+Source Domain Train F1-Score: 0.9991
+Target Domain Train Accuracy: 0.7978
+Target Domain Train F1-Score: 0.7978
+Target Domain Test Accuracy: 0.7958
+Target Domain Test F1-Score: 0.7958
+Src_cls_loss	: 0.0881
+Trg_cls_loss	: 1.4409
+Domain_loss	: 1.3363
+Src_task_loss	: 0.6751
+class_feature_and_domain_loss	: 2.6256
+Trg_MMD_loss	: 1.9505
+Contrast_loss	: 0.5256
+Contrast_loss_inst	: 1.0513
+Total_loss	: 4.1380
+-------------------------------------
+[Epoch : 45/100]
+Src_cls_loss	: 0.0869
+Trg_cls_loss	: 1.4445
+Domain_loss	: 1.3362
+Src_task_loss	: 0.6661
+class_feature_and_domain_loss	: 2.6079
+Trg_MMD_loss	: 1.9418
+Contrast_loss	: 0.5258
+Contrast_loss_inst	: 1.0517
+Total_loss	: 4.1179
+-------------------------------------
+[Epoch : 46/100]
+Src_cls_loss	: 0.0858
+Trg_cls_loss	: 1.4523
+Domain_loss	: 1.3365
+Src_task_loss	: 0.6576
+class_feature_and_domain_loss	: 2.5930
+Trg_MMD_loss	: 1.9354
+Contrast_loss	: 0.5260
+Contrast_loss_inst	: 1.0520
+Total_loss	: 4.1011
+-------------------------------------
+[Epoch : 47/100]
+Src_cls_loss	: 0.0843
+Trg_cls_loss	: 1.4679
+Domain_loss	: 1.3374
+Src_task_loss	: 0.6487
+class_feature_and_domain_loss	: 2.5799
+Trg_MMD_loss	: 1.9312
+Contrast_loss	: 0.5262
+Contrast_loss_inst	: 1.0524
+Total_loss	: 4.0859
+-------------------------------------
+[Epoch : 48/100]
+Src_cls_loss	: 0.0828
+Trg_cls_loss	: 1.4861
+Domain_loss	: 1.3375
+Src_task_loss	: 0.6399
+class_feature_and_domain_loss	: 2.5622
+Trg_MMD_loss	: 1.9223
+Contrast_loss	: 0.5264
+Contrast_loss_inst	: 1.0527
+Total_loss	: 4.0652
+-------------------------------------
+[Epoch : 49/100]
+Source Domain Train Accuracy: 1.0000
+Source Domain Train F1-Score: 1.0000
+Target Domain Train Accuracy: 0.8125
+Target Domain Train F1-Score: 0.8125
+Target Domain Test Accuracy: 0.8147
+Target Domain Test F1-Score: 0.8147
+Src_cls_loss	: 0.0813
+Trg_cls_loss	: 1.4890
+Domain_loss	: 1.3377
+Src_task_loss	: 0.6315
+class_feature_and_domain_loss	: 2.5453
+Trg_MMD_loss	: 1.9138
+Contrast_loss	: 0.5265
+Contrast_loss_inst	: 1.0531
+Total_loss	: 4.0456
+-------------------------------------
+[Epoch : 50/100]
+Src_cls_loss	: 0.0798
+Trg_cls_loss	: 1.5027
+Domain_loss	: 1.3380
+Src_task_loss	: 0.6230
+class_feature_and_domain_loss	: 2.5321
+Trg_MMD_loss	: 1.9091
+Contrast_loss	: 0.5267
+Contrast_loss_inst	: 1.0535
+Total_loss	: 4.0298
+-------------------------------------
+[Epoch : 51/100]
+Src_cls_loss	: 0.0784
+Trg_cls_loss	: 1.5098
+Domain_loss	: 1.3381
+Src_task_loss	: 0.6148
+class_feature_and_domain_loss	: 2.5165
+Trg_MMD_loss	: 1.9016
+Contrast_loss	: 0.5269
+Contrast_loss_inst	: 1.0538
+Total_loss	: 4.0115
+-------------------------------------

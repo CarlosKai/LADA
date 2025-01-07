@@ -48,6 +48,9 @@ class GradTCN:
             c = (c - c.min()) / (c.max() - c.min() + 1e-8)
             cams.append(c)
 
+        self.gradients = None
+        self.activations = None
+
         return np.array(cams)  # Shape: (batch_size, sequence_length)
 
     def mask_important_segments(self, input_tensor, cams):

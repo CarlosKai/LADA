@@ -191,7 +191,7 @@ class HHAR_SA(object):  ## HHAR dataset, SAMSUNG device.
         #         if i != j:
         #             self.scenarios.append((str(i), str(j)))
 
-        self.scenarios = [("0", "6")]
+        self.scenarios = [("0", "2")]
         # self.scenarios = [("0", "2"), ("1", "6"), ("2", "4"), ("4", "0"), ("4", "5"),
         #                   ("5", "1"), ("5", "2"), ("7", "2"), ("7", "5"), ("8", "4")]
 
