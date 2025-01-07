@@ -22,7 +22,7 @@ def get_algorithm_class(algorithm_name):
     return globals()[algorithm_name]
 
 
-class LALA(nn.Module):
+class TALA(nn.Module):
     def __init__(self, configs, hparams, device):
         super(LALA, self).__init__()
         # torch.autograd.set_detect_anomaly(True)

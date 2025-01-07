@@ -18,7 +18,7 @@ class HAR():
 
         }
         self.alg_hparams = {
-            "LALA": {
+            "TALA": {
                 # "domain_loss_wt": 2.943729820531079,
                 "domain_loss_wt": 1,
                 "learning_rate": 0.001,
@@ -53,7 +53,7 @@ class EEG():
 
         }
         self.alg_hparams = {
-            "LALA": {
+            "TALA": {
                 "domain_loss_wt": 1,
                 "learning_rate": 0.001,
                 "src_task_loss_wt": 1,
@@ -86,7 +86,7 @@ class WISDM():
 
         }
         self.alg_hparams = {
-            "LALA": {
+            "TALA": {
                 "domain_loss_wt": 1,
                 "learning_rate": 0.001,
                 "src_task_loss_wt": 1,
@@ -119,7 +119,7 @@ class HHAR_SA():
 
         }
         self.alg_hparams = {
-            "LALA": {
+            "TALA": {
                 "domain_loss_wt": 1,
                 "learning_rate": 0.001,
                 "src_task_loss_wt": 1,
