@@ -54,29 +54,28 @@ class GradTCN:
         return np.array(cams)  # Shape: (batch_size, sequence_length)
 
     def mask_important_segments(self, input_tensor, cams):
-        """
-        Mask time steps with importance higher than the threshold for the entire batch.
-        """
-        batch_size = input_tensor.size(0)
-        masks_low, masks_high = [], []
 
-        for cam in cams:
+        batch_size, num_channels, sequence_length = input_tensor.size()
+
+        # Initialize masks for the entire batch
+        masks_low = torch.zeros(batch_size, 1, sequence_length, device=input_tensor.device)
+        masks_high = torch.zeros(batch_size, 1, sequence_length, device=input_tensor.device)
+
+        # Create masks for each sample in the batch
+        for i, cam in enumerate(cams):
             cam_tensor = torch.from_numpy(cam).float().unsqueeze(0).unsqueeze(0).to(
-                input_tensor.device)  # (1, 1, L_cam)
+                input_tensor.device)  # Shape: (1, 1, L_cam)
 
-            # Create masks based on threshold ranges
-            mask_low = (cam_tensor <= 0.2).float()  # Retain values in [0, 0.4]
-            mask_high = (cam_tensor >= 0.5).float()  # Retain values in [0.6, 1]
+            # Calculate the 20th and 80th percentiles for the current CAM
+            low_threshold = torch.quantile(cam_tensor, 0.2)
+            high_threshold = torch.quantile(cam_tensor, 0.8)
 
-            masks_low.append(mask_low)  # Append mask for low importance
-            masks_high.append(mask_high)  # Append mask for high importance
+            # Create masks for the lowest 20% and highest 20%
+            masks_low[i] = (cam_tensor <= low_threshold).float()  # Mask for lowest 20%
+            masks_high[i] = (cam_tensor >= high_threshold).float()  # Mask for highest 20%
 
-        # Concatenate masks for the batch
-        masks_low = torch.cat(masks_low, dim=0)  # Shape: (batch_size, 1, sequence_length)
-        masks_high = torch.cat(masks_high, dim=0)  # Shape: (batch_size, 1, sequence_length)
-
-        # Apply masks to input tensor
-        masked_input_low = input_tensor * masks_low  # Retain low-importance segments
-        masked_input_high = input_tensor * masks_high  # Retain high-importance segments
+        # Scale the input tensor
+        masked_input_low = input_tensor * (1 - masks_low * 0.8)  # Scale lowest 20% to 0.2
+        masked_input_high = input_tensor * (1 - masks_high * 0.8)  # Scale highest 20% to 0.2
 
         return masked_input_low, masked_input_high  # Shape: (batch_size, num_channels, sequence_length)

@@ -239,11 +239,11 @@ class TALA(nn.Module):
             src_f_neg = self.get_cls_weiight(src_tcn_feat, src_label_min)
             trg_f_neg = self.get_cls_weiight(trg_tcn_feat, trg_label_min)
 
-            loss_indi = self.instance_contrastive_loss_v3(src_final_pred, src_masked_irrelated_tcn_pred, src_masked_related_tcn_pred) /2.0
+            loss_intra = self.instance_contrastive_loss_v3(src_final_pred, src_masked_irrelated_tcn_pred, src_masked_related_tcn_pred)
             # loss_indi = torch.tensor(0).to(self.device)
-            loss_inst = self.instance_contrastive_loss_v3(src_tcn_feat, src_f_pos, [trg_f_pos, trg_f_neg])
+            loss_cross = self.instance_contrastive_loss_v3(src_tcn_feat, src_f_pos_label_max, trg_f_pos)
             # contrast_loss = loss_inst + loss_indi
-            contrast_loss =  loss_inst * self.hparams["contrast_inst_loss_wt"]  + loss_indi * self.hparams["contrast_indi_loss_wt"]
+            contrast_loss =  loss_cross * self.hparams["contrast_cross_loss_wt"]  + loss_intra * self.hparams["contrast_intra_loss_wt"]
 
             src_cls_loss = self.cross_entropy(src_final_pred, src_y)
             trg_cls_loss = self.cross_entropy(trg_final_pred, trg_y)
@@ -302,8 +302,8 @@ class TALA(nn.Module):
                 self.optimizer2.step()
                 losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss': trg_cls_loss.item(),
                           'Domain_loss': domain_loss.item(),
-                          'Contrast_loss': contrast_loss.item(), 'Contrast_loss_inst': loss_inst.item(),
-                          'Contrast_loss_indi': loss_indi.item(), }
+                          'Contrast_loss': contrast_loss.item(), 'Contrast_loss_cross': loss_cross.item(),
+                          'Contrast_loss_intra': loss_intra.item(), }
                 for key, val in losses.items():
                     avg_meter[key].update(val, 32)
                 continue
@@ -325,12 +325,12 @@ class TALA(nn.Module):
             self.optimizer3.step()
             self.optimizer_disc.step()
             self.optimizer1.step()
-
+            torch.cuda.empty_cache()
             losses = {'Src_cls_loss': src_cls_loss.item(), 'Trg_cls_loss':trg_cls_loss.item(),
                       'Domain_loss': domain_loss.item(), 'Src_task_loss': src_task_loss.item(),
                       'class_feature_and_domain_loss': loss1.item(), 'Trg_MMD_loss': trg_mmd_loss,
-                      'Contrast_loss': contrast_loss.item(), 'Contrast_loss_inst': loss_inst.item(),
-                      'Contrast_loss_indi': loss_indi.item(), 'Total_loss': loss3.item()}
+                      'Contrast_loss': contrast_loss.item(), 'Contrast_loss_cross': loss_cross.item(),
+                      'Contrast_loss_intra': loss_intra.item(), 'Total_loss': loss3.item()}
 
             for key, val in losses.items():
                 avg_meter[key].update(val, 32)
@@ -338,6 +338,7 @@ class TALA(nn.Module):
         self.lr_scheduler1.step()
         self.lr_scheduler2.step()
         self.lr_scheduler3.step()
+
 
     def get_cls_weiight(self, f, labels):
         # 计算src_feat权重
@@ -387,6 +388,8 @@ class TALA(nn.Module):
         self.la_tcn.train()
         self.la_feature_classifier.train()
         self.optimizer3.zero_grad()
+        self.optimizer1.zero_grad()
+        self.optimizer2.zero_grad()
         return masked_irrelated_outputs, masked_related_outputs
 
 

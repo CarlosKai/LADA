@@ -1,0 +1,4 @@
+,scenario,run,acc,f1_score
+0,19_to_25,0,0.9268,0.9260
+1,mean,-,0.9268,0.9260
+2,std,-,nan,nan

@@ -10,18 +10,18 @@ parser = argparse.ArgumentParser()
 if __name__ == "__main__":
 
     # ========  Experiments Phase ================
-    parser.add_argument('--phase',               default='train',         type=str, help='train, test')
+    parser.add_argument('--phase',               default='test',         type=str, help='train, test')
 
     # ========  Experiments Name ================
     parser.add_argument('--save_dir',               default='experiments_logs',         type=str, help='Directory containing all experiments')
-    parser.add_argument('--exp_name',               default='TALA_2',         type=str, help='experiment name')
+    parser.add_argument('--exp_name',               default='exp',         type=str, help='experiment name')
 
     # ========= Select the DA methods ============
     parser.add_argument('--da_method',              default='TALA',               type=str, help='MCD, NO_ADAPT, Deep_Coral, MMDA, DANN, CDAN, DIRT, DSAN, HoMM, CoDATS, AdvSKM, SASA, CoTMix, TARGET_ONLY')
 
     # ========= Select the DATASET ==============
     parser.add_argument('--data_path',              default=r'../data',                  type=str, help='Path containing datase2t')
-    parser.add_argument('--dataset',                default='HHAR_SA',                      type=str, help='Dataset of choice: (WISDM - EEG - HAR - HHAR_SA)')
+    parser.add_argument('--dataset',                default='HAR',                      type=str, help='Dataset of choice: (WISDM - EEG - HAR - HHAR_SA)')
 
     # ========= Experiment settings ===============
     parser.add_argument('--num_runs',               default=1,                          type=int, help='Number of consecutive run with different seeds')

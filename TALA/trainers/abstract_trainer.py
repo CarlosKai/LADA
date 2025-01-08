@@ -158,6 +158,6 @@ class AbstractTrainer(object):
         format_func = lambda x: f"{x:.4f}" if isinstance(x, float) else x
 
         # Apply the formatting function to each element in the tables
-        table = table.map(format_func)
+        table = table.applymap(format_func)
 
         return table 

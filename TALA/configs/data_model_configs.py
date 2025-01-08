@@ -17,7 +17,21 @@ class HAR():
         #         if i != j:
         #             self.scenarios.append((str(i), str(j)))
 
-        self.scenarios = [("15", "19")]
+        self.scenarios = [("19", "25")]
+        # self.scenarios = [
+        #     ("15", "19"),
+        #     ("18", "21"),
+        #     ("19", "25"),
+        #     ("19", "27"),
+        #     ("20", "6"),
+        #     ("23", "13"),
+        #     ("24", "22"),
+        #     ("25", "24"),
+        #     ("3", "20"),
+        #     ("13", "19"),
+        # ]
+
+
         # self.scenarios = [("2", "11"), ("6", "23"), ("7", "13"), ("9", "18"), ("12", "16"),
         #                   ("13", "19"), ("18", "21"), ("20", "6"), ("23", "13"), ("24", "12")]
 
@@ -77,9 +91,23 @@ class EEG():
         #         if i != j:
         #             self.scenarios.append((str(i), str(j)))
 
-        self.scenarios = [("16", "1")]
+        # self.scenarios = [("16", "1")]
         # self.scenarios = [("0", "11"), ("2", "5"), ("12", "5"), ("7", "18"), ("16", "1"),
         #                   ("9", "14"), ("4", "12"), ("10", "7"), ("6", "3"), ("8", "10")]
+
+        self.scenarios = [
+            ("0", "11"),
+            # ("2", "5"),
+            # ("12", "5"),
+            # ("7", "18"),
+            # ("16", "1"),
+            # ("9", "14"),
+            # ("4", "12"),
+            # ("10", "7"),
+            # ("6", "3"),
+            # ("8", "10")
+        ]
+
 
         # base information
         self.sequence_len = 3000
@@ -112,11 +140,11 @@ class EEG():
         self.label_relation_classifier_input = self.input_channels * self.input_channels
         self.feature_classifier_input = 128
         self.features_len = 1
-        self.disc_hid_dim = 100
+        self.disc_hid_dim = 500
 
         # CNN features
         self.cnn_input_channels = 1
-        self.mid_channels = 16
+        self.mid_channels = 64
         self.stride = 6
         self.cnn_features_len = 1
         self.cnn_kernel_size = 25
@@ -134,9 +162,21 @@ class WISDM(object):
         #         if i != j:
         #             self.scenarios.append((str(i), str(j)))
 
-        self.scenarios = [("12", "7")]
+        # self.scenarios = [("12", "7")]
         # self.scenarios = [("2", "32"), ("4", "15"), ("7", "30"), ("12", "17"), ("12", "19"),
         #                   ("18", "20"), ("20", "30"), ("21", "31"), ("25", "29"), ("26", "2")]
+        self.scenarios = [
+            ("12", "19"),
+            ("12", "7"),
+            ("18", "20"),
+            ("19", "2"),
+            ("2", "28"),
+            ("26", "2"),
+            ("28", "2"),
+            ("28", "20"),
+            ("7", "2"),
+            ("7", "26"),
+        ]
 
         # base information
         self.sequence_len = 128
@@ -191,9 +231,25 @@ class HHAR_SA(object):  ## HHAR dataset, SAMSUNG device.
         #         if i != j:
         #             self.scenarios.append((str(i), str(j)))
 
-        self.scenarios = [("0", "2")]
+        # self.scenarios = [("0", "2")]
         # self.scenarios = [("0", "2"), ("1", "6"), ("2", "4"), ("4", "0"), ("4", "5"),
         #                   ("5", "1"), ("5", "2"), ("7", "2"), ("7", "5"), ("8", "4")]
+
+        self.scenarios = [
+            ("0", "2"),
+            ("1", "6"),
+            ("2", "4"),
+            ("4", "0"),
+            ("4", "1"),
+            ("5", "1"),
+            ("7", "1"),
+            ("7", "5"),
+            ("8", "3"),
+            ("8", "4")
+        ]
+
+
+
 
         # base information
         self.sequence_len = 128

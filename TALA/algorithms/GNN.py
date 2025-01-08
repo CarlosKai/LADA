@@ -6,7 +6,7 @@ class GNNLayer(nn.Module):
     def __init__(self, in_features, out_features):
         super(GNNLayer, self).__init__()
         self.linear = nn.Linear(in_features, out_features, bias=False)
-        self.activation = nn.ReLU()  # 使用 ReLU 激活函数
+        self.activation = nn.LeakyReLU()  # 使用 ReLU 激活函数
 
     def forward(self, X, adj):
         """
@@ -20,7 +20,8 @@ class GNNLayer(nn.Module):
         # 聚合邻居特征
         H_agg = torch.einsum("bij,bjk->bik", adj, X)  # 对应 A * H
         # 线性变换 + 激活函数
-        H_out = self.activation(self.linear(H_agg))  # 对应 A * H * W + 激活函数
+        H_out = self.linear(H_agg)
+        H_out = self.activation(H_out)  # 对应 A * H * W + 激活函数
         return H_out
 
 class GNNTimeModel(nn.Module):
@@ -28,13 +29,14 @@ class GNNTimeModel(nn.Module):
         super(GNNTimeModel, self).__init__()
         self.num_time_steps = configs.gnn_in_timestamps
         self.num_variables = configs.input_channels
+        self.activation = nn.ReLU()
 
         # 单头 GNN 层
         self.gnn_layer = GNNLayer(in_features=configs.gnn_in_features, out_features=configs.gnn_out_features)
 
         # 可学习邻接矩阵
         self.learnable_adj = nn.Parameter(torch.randn(self.num_time_steps, self.num_variables, self.num_variables))  # 可学习的邻接矩阵
-
+        self.bn = nn.LayerNorm(configs.gnn_in_timestamps)
 
     def forward(self, X):
         """
@@ -65,6 +67,8 @@ class GNNTimeModel(nn.Module):
 
         # 拼接所有时间步
         gnn_outputs = torch.stack(gnn_outputs, dim=1)  # [batch_size, num_time_steps, num_variables, gnn_features]
-        gnn_outputs = gnn_outputs.view(batch_size, num_time_steps, -1)  # Flatten nodes
-
+        gnn_outputs = gnn_outputs.view(batch_size, num_time_steps,-1)
+        # gnn_outputs = gnn_outputs.permute(0, 2, 1)
+        # gnn_outputs = self.bn(gnn_outputs)
+        # gnn_outputs = gnn_outputs.permute(0, 2, 1)
         return gnn_outputs
