@@ -46,7 +46,7 @@ class EEG():
         super().__init__()
         self.train_params = {
             'num_epochs': 100,
-            'batch_size': 64,
+            'batch_size': 128,
             'weight_decay': 1e-4,
             'step_size': 50,
             'lr_decay': 0.5
@@ -78,7 +78,7 @@ class WISDM():
     def __init__(self):
         super().__init__()
         self.train_params = {
-            'num_epochs': 500,
+            'num_epochs': 250,
             'batch_size': 32,
             'weight_decay': 1e-4,
             'step_size': 50,
@@ -121,7 +121,7 @@ class HHAR_SA():
         self.alg_hparams = {
             "TALA": {
                 "domain_loss_wt": 1,
-                "learning_rate": 0.001,
+                "learning_rate": 0.0001,
                 "src_task_loss_wt": 1,
                 "trg_mmd_loss_wt": 1,
                 "src_cls_loss_wt": 2,
